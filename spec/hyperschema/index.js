@@ -58,7 +58,7 @@ const encoding1 = {
   }
 }
 
-// @rpc-discovery/register-service-request
+// @rpc-discovery/put-service-request
 const encoding2 = encoding0
 
 function setVersion (v) {
@@ -85,7 +85,7 @@ function getEncoding (name) {
   switch (name) {
     case '@rpc-discovery/service-entry': return encoding0
     case '@rpc-discovery/op': return encoding1
-    case '@rpc-discovery/register-service-request': return encoding2
+    case '@rpc-discovery/put-service-request': return encoding2
     default: throw new Error('Encoder not found ' + name)
   }
 }

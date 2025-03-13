@@ -6,8 +6,10 @@ const getTestnet = require('hyperdht/testnet')
 const b4a = require('b4a')
 
 const RpcDiscovery = require('..')
+const RegisterClient = require('../client/register')
+const HyperDHT = require('hyperdht')
 
-test('basic registry and lookup flow without RPC', async t => {
+test('registry and lookup flow without RPC', async t => {
   const testnet = await getTestnet(t)
   const { service } = await setup(t, testnet)
   await service.ready()
@@ -21,6 +23,34 @@ test('basic registry and lookup flow without RPC', async t => {
 
   const keys = await toList(service.getKeys())
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }])
+})
+
+test('registry flow with RPC', async t => {
+  t.plan(1)
+  const testnet = await getTestnet()
+  const { bootstrap } = testnet
+  const { service } = await setup(t, testnet)
+  await service.ready()
+  await service.swarm.flush()
+
+  const dht = new HyperDHT({ bootstrap })
+  t.teardown(async () => { await dht.destroy() }, { order: 100 })
+
+  const key1 = 'a'.repeat(64)
+  const client = new RegisterClient(
+    service.serverPublicKey, dht
+  )
+
+  await client.putService(key1)
+
+  await Promise.all([
+    waitForNewEntry(service),
+    client.putService(key1)
+  ])
+
+  const keys = await toList(service.getKeys())
+  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }])
+  await client.close()
 })
 
 async function setup (t, testnet) {
