@@ -1,0 +1,32 @@
+{
+  "name": "rpc-discovery",
+  "version": "0.0.0",
+  "description": "Discover RPC services using autobase and protomux-rpc",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard"
+  },
+  "files": [
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holepunchto/rpc-discovery.git"
+  },
+  "keywords": [
+    "discovery",
+    "protomux",
+    "rpc",
+    "autobase",
+    "dht"
+  ],
+  "author": "Holepunch",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/holepunchto/rpc-discovery/issues"
+  },
+  "homepage": "https://github.com/holepunchto/rpc-discovery#readme",
+  "devDependencies": {
+    "standard": "^17.1.2"
+  }
+}
