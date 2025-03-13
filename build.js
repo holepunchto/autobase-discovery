@@ -6,7 +6,7 @@ const SCHEMA_DIR = path.join(__dirname, 'spec', 'hyperschema')
 const DB_DIR = path.join(__dirname, 'spec', 'hyperdb')
 
 function build () {
-  const schema = Hyperschema.from(SCHEMA_DIR)
+  const schema = Hyperschema.from(SCHEMA_DIR, { versioned: false })
   const ops = schema.namespace('rpc-discovery')
 
   ops.register({
