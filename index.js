@@ -16,7 +16,7 @@ class RpcDiscovery extends ReadyResource {
   static OPS = ops
   static VALUE_ENCODING = opEncoding
 
-  constructor (store, swarm, { bootstrap = null, maxParallel = 256 } = {}) {
+  constructor (store, swarm, { bootstrap = null } = {}) {
     super()
 
     this.swarm = swarm
@@ -28,8 +28,6 @@ class RpcDiscovery extends ReadyResource {
       apply: this._apply.bind(this),
       close: this._closeAutobase.bind(this)
     })
-
-    this._maxParallel = maxParallel
   }
 
   get view () {

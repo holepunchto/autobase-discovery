@@ -55,7 +55,6 @@ function build () {
   Hyperschema.toDisk(schema)
 
   const db = HyperDB.from(SCHEMA_DIR, DB_DIR)
-  // const opsDb = db.namespace('hyperns')
   const rpcDiscoveryDb = db.namespace('rpc-discovery')
 
   rpcDiscoveryDb.collections.register({
@@ -63,12 +62,6 @@ function build () {
     schema: '@rpc-discovery/service-entry',
     key: ['publicKey']
   })
-
-  // opsDb.collections.register({
-  //   name: 'op',
-  //   schema: '@rpc-discovery/op',
-  //   key: ['op']
-  // )
 
   HyperDB.toDisk(db)
 }
