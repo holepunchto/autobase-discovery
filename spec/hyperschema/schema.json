@@ -42,7 +42,7 @@
       ]
     },
     {
-      "name": "register-service-request",
+      "name": "put-service-request",
       "namespace": "rpc-discovery",
       "compact": false,
       "flagsPosition": -1,

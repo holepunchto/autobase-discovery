@@ -1,10 +1,13 @@
 const ReadyResource = require('ready-resource')
 const Autobase = require('autobase')
 const IdEnc = require('hypercore-id-encoding')
+const ProtomuxRPC = require('protomux-rpc')
+const cenc = require('compact-encoding')
 
 const RpcDiscoveryDb = require('./lib/db')
 const { resolveStruct } = require('./spec/hyperschema')
 const opEncoding = resolveStruct('@rpc-discovery/op')
+const PutServiceRequest = resolveStruct('@rpc-discovery/put-service-request')
 
 const ops = {
   ADD_WRITER: 0,
@@ -34,9 +37,31 @@ class RpcDiscovery extends ReadyResource {
     return this.base.view
   }
 
+  get serverPublicKey () {
+    return this.swarm.keyPair.publicKey
+  }
+
   async _open () {
     await this.base.ready()
     await this.view.ready()
+
+    this.swarm.on('connection', (conn) => {
+      this.store.replicate(conn)
+
+      const rpc = new ProtomuxRPC(conn, {
+        id: this.swarm.keyPair.publicKey,
+        valueEncoding: cenc.none
+      })
+      rpc.respond(
+        'put-service',
+        { requestEncoding: PutServiceRequest, responseEncoding: cenc.none },
+        this._onPutService.bind(this, conn)
+      )
+    })
+
+    // DEVNOTE: the caller is responsible for maintaining
+    // consistent swarm keypairs across restarts
+    await this.swarm.listen()
   }
 
   async _close () {
@@ -68,6 +93,10 @@ class RpcDiscovery extends ReadyResource {
         await base.addWriter(node.value.writerKey, { isIndexer: true })
       }
     }
+  }
+
+  async _onPutService (stream, req) {
+    await this.addService(req.publicKey)
   }
 
   async addService (serviceKey) {

@@ -42,7 +42,7 @@ function build () {
   })
 
   ops.register({
-    name: 'register-service-request',
+    name: 'put-service-request',
     fields: [
       {
         name: 'publicKey',
