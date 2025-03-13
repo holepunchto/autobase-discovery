@@ -4,10 +4,12 @@
   "description": "Discover RPC services using autobase and protomux-rpc",
   "main": "index.js",
   "scripts": {
-    "test": "standard"
+    "test": "standard && brittle test/test.js"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "lib/",
+    "spec/"
   ],
   "repository": {
     "type": "git",
@@ -27,6 +29,19 @@
   },
   "homepage": "https://github.com/holepunchto/rpc-discovery#readme",
   "devDependencies": {
+    "b4a": "^1.6.7",
+    "brittle": "^3.12.1",
+    "corestore": "^7.0.19",
+    "hyperdht": "^6.20.1",
+    "hyperswarm": "^4.10.0",
     "standard": "^17.1.2"
+  },
+  "dependencies": {
+    "autobase": "^7.0.44",
+    "db-lock": "^1.2.0",
+    "hypercore-id-encoding": "^1.3.0",
+    "hyperdb": "^4.9.4",
+    "hyperschema": "^1.10.4",
+    "ready-resource": "^1.1.2"
   }
 }

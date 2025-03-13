@@ -1,0 +1,19 @@
+{
+  "version": 0,
+  "offset": 0,
+  "schema": [
+    {
+      "name": "service-entry",
+      "namespace": "rpc-discovery",
+      "id": 0,
+      "type": 1,
+      "indexes": [],
+      "schema": "@rpc-discovery/service-entry",
+      "derived": false,
+      "key": [
+        "publicKey"
+      ],
+      "trigger": null
+    }
+  ]
+}

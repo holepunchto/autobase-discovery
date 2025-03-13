@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "name": "service-entry",
+      "namespace": "rpc-discovery",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "publicKey",
+          "required": true,
+          "type": "fixed32",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "op",
+      "namespace": "rpc-discovery",
+      "compact": false,
+      "flagsPosition": 1,
+      "fields": [
+        {
+          "name": "op",
+          "required": true,
+          "type": "uint",
+          "version": 1
+        },
+        {
+          "name": "writerKey",
+          "required": false,
+          "type": "fixed32",
+          "version": 1
+        },
+        {
+          "name": "serviceKey",
+          "required": false,
+          "type": "fixed32",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "register-service-request",
+      "namespace": "rpc-discovery",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "publicKey",
+          "required": true,
+          "type": "fixed32",
+          "version": 1
+        }
+      ]
+    }
+  ]
+}
