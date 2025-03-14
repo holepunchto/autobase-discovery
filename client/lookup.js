@@ -75,7 +75,7 @@ class RpcDiscoveryLookupClient extends BaseClient {
   async list ({ limit = 3 } = {}) {
     if (!this.opened) await this.ready()
 
-    if (this.db.db.engine.core.length === 0) {
+    if (this.db.db.core.length === 0) {
       await this.ensureDbLoaded()
     }
 
