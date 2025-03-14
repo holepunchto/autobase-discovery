@@ -23,7 +23,6 @@ class BaseClient extends ReadyResource {
     this.db = new RpcDiscoveryDb(this.core, { extension: false })
     await this.db.ready()
     this.swarm.join(this.core.discoveryKey, { client: true, server: false })
-    console.log('ookup joins', this.core.discoveryKey)
   }
 
   async _close () {

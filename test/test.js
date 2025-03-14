@@ -74,7 +74,6 @@ test('lookup flow with lookupClient', async t => {
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }], 'sanity check')
 
   service.swarm.join(service.dbDiscoveryKey, { server: true, client: true })
-  console.log('joining', service.dbDiscoveryKey)
   await service.swarm.flush()
 
   const swarm = new Hyperswarm({ bootstrap })
