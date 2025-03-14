@@ -3,3 +3,35 @@
 Discovery of RPC services using [autobase](https://github.com/holepunchto/autobase) and [protomux-rpc](https://github.com/holepunchto/protomux-rpc).
 
 The RPC services self-register to the discovery service. Clients discover them by querying the discovery service's [hyperdb](https://github.com/holepunchto/hyperdb), which is an autobase view.
+
+## Install
+
+```
+npm i rpc-discovery
+```
+
+## Usage
+
+### Server
+
+```
+rpc-discovery run
+```
+
+The RPC server's public key and the database key will be printed.
+
+Logs are in pino's JSON format. Pipe them to `pino-pretty` for a human-readable format (`rpc-discovery run | pino-pretty`)
+
+Note that the database key is updated every time a new indexer is processed. In particular, you should add at least one entry to the database to stabilise the database key for the initial indexer.
+
+### Client
+
+See [example.js](example.js) for the programmatic way of self-registering a service instance.
+
+See [client/bin.js](client/bin.js) for the programmatic way of listing the available service instances.
+
+Alternatively, use the CLI:
+
+```
+rpc-discovery-client list <rpc-discovery database key>
+```
