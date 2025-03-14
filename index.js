@@ -41,6 +41,14 @@ class RpcDiscovery extends ReadyResource {
     return this.swarm.keyPair.publicKey
   }
 
+  get dbKey () {
+    return this.view.db.core.key
+  }
+
+  get dbDiscoveryKey () {
+    return this.view.db.core.discoveryKey
+  }
+
   async _open () {
     await this.base.ready()
     await this.view.ready()

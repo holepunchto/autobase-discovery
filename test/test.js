@@ -8,6 +8,9 @@ const b4a = require('b4a')
 const RpcDiscovery = require('..')
 const RegisterClient = require('../client/register')
 const HyperDHT = require('hyperdht')
+const RpcDiscoveryLookupClient = require('../client/lookup')
+
+const DEBUG = false
 
 test('registry and lookup flow without RPC', async t => {
   const testnet = await getTestnet(t)
@@ -51,6 +54,45 @@ test('registry flow with RPC', async t => {
   const keys = await toList(service.getKeys())
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }])
   await client.close()
+})
+
+test('lookup flow with lookupClient', async t => {
+  t.plan(2)
+  const testnet = await getTestnet()
+  const { bootstrap } = testnet
+  const { service } = await setup(t, testnet)
+  await service.ready()
+
+  const key1 = 'a'.repeat(64)
+
+  await Promise.all([
+    waitForNewEntry(service),
+    service.addService(key1)
+  ])
+
+  const keys = await toList(service.getKeys())
+  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }], 'sanity check')
+
+  service.swarm.join(service.dbDiscoveryKey, { server: true, client: true })
+  await service.swarm.flush()
+
+  const swarm = new Hyperswarm({ bootstrap })
+  const store = new Corestore(await t.tmp())
+  swarm.on('connection', conn => {
+    if (DEBUG) console.log('DEBUG CLIENT connection opened')
+    store.replicate(conn)
+  })
+  const client = new RpcDiscoveryLookupClient(
+    service.dbKey, swarm, store
+  )
+  t.teardown(async () => {
+    await client.close()
+    await swarm.destroy()
+    await store.close()
+  }, { order: 50 })
+
+  const clientKeys = await toList(await client.list())
+  t.alike(keys, clientKeys, 'can lookup with client')
 })
 
 async function setup (t, testnet) {
