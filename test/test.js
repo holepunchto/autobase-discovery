@@ -21,11 +21,11 @@ test('registry and lookup flow without RPC', async t => {
 
   await Promise.all([
     waitForNewEntry(service),
-    service.addService(key1)
+    service.addService(key1, 'my-service')
   ])
 
   const keys = await toList(service.getKeys())
-  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }])
+  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }])
 })
 
 test('registry flow with RPC', async t => {
@@ -44,15 +44,15 @@ test('registry flow with RPC', async t => {
     service.serverPublicKey, dht
   )
 
-  await client.putService(key1)
+  await client.putService(key1, 'my-service')
 
   await Promise.all([
     waitForNewEntry(service),
-    client.putService(key1)
+    client.putService(key1, 'my-service')
   ])
 
   const keys = await toList(service.getKeys())
-  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }])
+  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }])
   await client.close()
 })
 
@@ -67,11 +67,11 @@ test('lookup flow with lookupClient', async t => {
 
   await Promise.all([
     waitForNewEntry(service),
-    service.addService(key1)
+    service.addService(key1, 'my-service')
   ])
 
   const keys = await toList(service.getKeys())
-  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex') }], 'sanity check')
+  t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }], 'sanity check')
 
   service.swarm.join(service.dbDiscoveryKey, { server: true, client: true })
   await service.swarm.flush()
