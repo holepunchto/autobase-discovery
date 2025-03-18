@@ -3,7 +3,7 @@ const IdEnc = require('hypercore-id-encoding')
 const RegisterClient = require('./client/register')
 
 async function main () {
-  const rpcServerKey = 'e7pr459mhuomz7dzoh4hx3mcb6q5ng1ixar5ayzjjbwohf1pu88o'
+  const rpcServerKey = '<Enter autodiscovery RPC-server public key here>'
   const swarm = new Hyperswarm()
   await swarm.listen()
   const myServerKey = swarm.keyPair.publicKey
