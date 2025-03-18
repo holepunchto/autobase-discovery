@@ -117,8 +117,8 @@ class Autodiscovery extends ReadyResource {
     await this.base.append({ op: ops.ADD_SERVICE, serviceKey, serviceName })
   }
 
-  getKeys ({ limit = 100 } = {}) {
-    return this.view.list({ limit })
+  getKeys (service, { limit = 100 } = {}) {
+    return this.view.list(service, { limit })
   }
 }
 

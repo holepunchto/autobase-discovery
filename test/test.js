@@ -24,8 +24,41 @@ test('registry and lookup flow without RPC', async t => {
     service.addService(key1, 'my-service')
   ])
 
-  const keys = await toList(service.getKeys())
+  const keys = await toList(service.getKeys('my-service'))
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }])
+})
+
+test('registry and lookup flow without RPC--multiple services', async t => {
+  const testnet = await getTestnet(t)
+  const { service } = await setup(t, testnet)
+  await service.ready()
+
+  const key1 = 'a'.repeat(64)
+  const key2 = 'b'.repeat(64)
+  const key3 = 'c'.repeat(64)
+
+  await Promise.all([
+    waitForNewEntry(service),
+    service.addService(key1, 'my-service')
+  ])
+  await Promise.all([
+    waitForNewEntry(service),
+    service.addService(key2, 'my-service')
+  ])
+  await Promise.all([
+    waitForNewEntry(service),
+    service.addService(key3, 'other-service')
+  ])
+
+  const keys = await toList(service.getKeys('my-service'))
+  t.alike(
+    keys,
+    [
+      { publicKey: b4a.from(key1, 'hex'), service: 'my-service' },
+      { publicKey: b4a.from(key2, 'hex'), service: 'my-service' }
+    ],
+    'other-service entry not included'
+  )
 })
 
 test('registry flow with RPC', async t => {
@@ -51,7 +84,7 @@ test('registry flow with RPC', async t => {
     client.putService(key1, 'my-service')
   ])
 
-  const keys = await toList(service.getKeys())
+  const keys = await toList(service.getKeys('my-service'))
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }])
   await client.close()
 })
@@ -70,7 +103,7 @@ test('lookup flow with lookupClient', async t => {
     service.addService(key1, 'my-service')
   ])
 
-  const keys = await toList(service.getKeys())
+  const keys = await toList(service.getKeys('my-service'))
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }], 'sanity check')
 
   service.swarm.join(service.dbDiscoveryKey, { server: true, client: true })

@@ -10,7 +10,7 @@ async function main () {
 
   const client = new RegisterClient(rpcServerKey, swarm.dht)
   console.log(`Registering service ${IdEnc.normalize(myServerKey)}...`)
-  await client.putService(myServerKey)
+  await client.putService(myServerKey, 'my-service-name')
   console.log(`Registered ${IdEnc.normalize(myServerKey)}`)
 
   await client.close()

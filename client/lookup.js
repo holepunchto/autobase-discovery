@@ -72,14 +72,14 @@ class BaseClient extends ReadyResource {
 }
 
 class RpcDiscoveryLookupClient extends BaseClient {
-  async list ({ limit = 3 } = {}) {
+  async list (service, { limit = 3 } = {}) {
     if (!this.opened) await this.ready()
 
     if (this.db.db.core.length === 0) {
       await this.ensureDbLoaded()
     }
 
-    return this.db.list({ limit })
+    return this.db.list(service, { limit })
   }
 }
 
