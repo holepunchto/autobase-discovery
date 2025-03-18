@@ -6,8 +6,8 @@ const cenc = require('compact-encoding')
 
 const RpcDiscoveryDb = require('./lib/db')
 const { resolveStruct } = require('./spec/hyperschema')
-const opEncoding = resolveStruct('@rpc-discovery/op')
-const PutServiceRequest = resolveStruct('@rpc-discovery/put-service-request')
+const opEncoding = resolveStruct('@autodiscovery/op')
+const PutServiceRequest = resolveStruct('@autodiscovery/put-service-request')
 
 const ops = {
   ADD_WRITER: 0,
@@ -15,7 +15,7 @@ const ops = {
   ADD_SERVICE: 2
 }
 
-class RpcDiscovery extends ReadyResource {
+class Autodiscovery extends ReadyResource {
   static OPS = ops
   static VALUE_ENCODING = opEncoding
 
@@ -117,4 +117,4 @@ class RpcDiscovery extends ReadyResource {
   }
 }
 
-module.exports = RpcDiscovery
+module.exports = Autodiscovery

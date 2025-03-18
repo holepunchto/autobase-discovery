@@ -9,7 +9,7 @@ const { c } = require('hyperschema/runtime')
 // eslint-disable-next-line no-unused-vars
 let version = VERSION
 
-// @rpc-discovery/service-entry
+// @autodiscovery/service-entry
 const encoding0 = {
   preencode (state, m) {
     c.fixed32.preencode(state, m.publicKey)
@@ -26,7 +26,7 @@ const encoding0 = {
   }
 }
 
-// @rpc-discovery/op
+// @autodiscovery/op
 const encoding1 = {
   preencode (state, m) {
     c.uint.preencode(state, m.op)
@@ -58,10 +58,10 @@ const encoding1 = {
   }
 }
 
-// @rpc-discovery/put-service-request
+// @autodiscovery/put-service-request
 const encoding2 = encoding0
 
-// @rpc-discovery/service-entry/hyperdb#0
+// @autodiscovery/service-entry/hyperdb#0
 const encoding3 = {
   preencode (state, m) {
 
@@ -98,10 +98,10 @@ function getEnum (name) {
 
 function getEncoding (name) {
   switch (name) {
-    case '@rpc-discovery/service-entry': return encoding0
-    case '@rpc-discovery/op': return encoding1
-    case '@rpc-discovery/put-service-request': return encoding2
-    case '@rpc-discovery/service-entry/hyperdb#0': return encoding3
+    case '@autodiscovery/service-entry': return encoding0
+    case '@autodiscovery/op': return encoding1
+    case '@autodiscovery/put-service-request': return encoding2
+    case '@autodiscovery/service-entry/hyperdb#0': return encoding3
     default: throw new Error('Encoder not found ' + name)
   }
 }

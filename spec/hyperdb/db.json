@@ -4,11 +4,11 @@
   "schema": [
     {
       "name": "service-entry",
-      "namespace": "rpc-discovery",
+      "namespace": "autodiscovery",
       "id": 0,
       "type": 1,
       "indexes": [],
-      "schema": "@rpc-discovery/service-entry",
+      "schema": "@autodiscovery/service-entry",
       "derived": false,
       "key": [
         "publicKey"
