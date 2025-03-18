@@ -78,25 +78,6 @@ function build () {
     key: ['publicKey']
   })
 
-  // rpcDiscoveryDb.indexes.register({
-  //   name: 'service-by-name',
-  //   collection: '@autodiscovery/service-entry',
-  //   key: {
-  //     type: {
-  //       fields: [
-  //         {
-  //           name: 'service',
-  //           type: 'string'
-  //         },
-  //         {
-  //           name: 'publicKey',
-  //           type: 'fixed32'
-  //         }
-  //       ]
-  //     }
-  //   }
-  // })
-
   rpcDiscoveryDb.indexes.register({
     name: 'services',
     collection: '@autodiscovery/service-entry',
