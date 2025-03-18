@@ -8,12 +8,12 @@ const Corestore = require('corestore')
 const LookupClient = require('./lookup')
 
 const lookup = command('list',
-  arg('<dbKey>', 'Public key of the RPC-discovery database'),
-  flag('--storage|-s [path]', 'storage path, defaults to ./rpc-discovery-client'),
+  arg('<dbKey>', 'Public key of the autodiscovery database'),
+  flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery-client'),
   flag('--limit|-l [nr]', 'Max amount of services to show (default 10)'),
   flag('--debug|-d', 'Debug mode (more logs)'),
   async function ({ args, flags }) {
-    const storage = flags.storage || 'rpc-discovery-client'
+    const storage = flags.storage || 'autodiscovery-client'
     const debug = flags.debug
     const limit = flags.limit || 10
 
@@ -31,7 +31,7 @@ const lookup = command('list',
     })
 
     const client = new LookupClient(
-      dbKey, swarm, store.namespace('rpc-discovery-lookup')
+      dbKey, swarm, store.namespace('autodiscovery-lookup')
     )
     await client.ready()
     console.log('Loading database...')
@@ -53,5 +53,5 @@ const lookup = command('list',
   }
 )
 
-const cmd = command('rpc-discovery-client', lookup)
+const cmd = command('autodiscovery-client', lookup)
 cmd.parse()

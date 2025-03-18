@@ -1,7 +1,7 @@
 {
-  "name": "rpc-discovery",
+  "name": "autodiscovery",
   "version": "0.0.0",
-  "description": "Discover RPC services using autobase and protomux-rpc",
+  "description": "Automatic service discovery with self-registering services, using autobase",
   "main": "index.js",
   "scripts": {
     "test": "standard && brittle test/test.js"
@@ -14,12 +14,12 @@
     "bin.js"
   ],
   "bin": {
-    "rpc-service": "bin.js",
-    "rpc-service-client": "client/bin.js"
+    "autodiscovery": "bin.js",
+    "autodiscovery-client": "client/bin.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/holepunchto/rpc-discovery.git"
+    "url": "git+https://github.com/holepunchto/autodiscovery.git"
   },
   "keywords": [
     "discovery",
@@ -31,9 +31,9 @@
   "author": "Holepunch",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/holepunchto/rpc-discovery/issues"
+    "url": "https://github.com/holepunchto/autodiscovery/issues"
   },
-  "homepage": "https://github.com/holepunchto/rpc-discovery#readme",
+  "homepage": "https://github.com/holepunchto/autodiscovery#readme",
   "devDependencies": {
     "b4a": "^1.6.7",
     "brittle": "^3.12.1",

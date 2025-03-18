@@ -7,7 +7,7 @@ The RPC services self-register to the discovery service. Clients discover them b
 ## Install
 
 ```
-npm i rpc-discovery
+npm i autodiscovery
 ```
 
 ## Usage
@@ -15,12 +15,12 @@ npm i rpc-discovery
 ### Server
 
 ```
-rpc-discovery run
+autodiscovery run
 ```
 
 The RPC server's public key and the database key will be printed.
 
-Logs are in pino's JSON format. Pipe them to `pino-pretty` for a human-readable format (`rpc-discovery run | pino-pretty`)
+Logs are in pino's JSON format. Pipe them to `pino-pretty` for a human-readable format (`autodiscovery run | pino-pretty`)
 
 Note that the database key is updated every time a new indexer is processed. In particular, you should add at least one entry to the database to stabilise the database key for the initial indexer.
 
@@ -33,5 +33,5 @@ See [client/bin.js](client/bin.js) for the programmatic way of listing the avail
 Alternatively, use the CLI:
 
 ```
-rpc-discovery-client list <rpc-discovery database key>
+autodiscovery-client list <autodiscovery database key>
 ```

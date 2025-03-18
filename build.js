@@ -7,7 +7,7 @@ const DB_DIR = path.join(__dirname, 'spec', 'hyperdb')
 
 function build () {
   const schema = Hyperschema.from(SCHEMA_DIR, { versioned: false })
-  const ops = schema.namespace('rpc-discovery')
+  const ops = schema.namespace('autodiscovery')
 
   ops.register({
     name: 'service-entry',
@@ -55,11 +55,11 @@ function build () {
   Hyperschema.toDisk(schema)
 
   const db = HyperDB.from(SCHEMA_DIR, DB_DIR)
-  const rpcDiscoveryDb = db.namespace('rpc-discovery')
+  const rpcDiscoveryDb = db.namespace('autodiscovery')
 
   rpcDiscoveryDb.collections.register({
     name: 'service-entry',
-    schema: '@rpc-discovery/service-entry',
+    schema: '@autodiscovery/service-entry',
     key: ['publicKey']
   })
 

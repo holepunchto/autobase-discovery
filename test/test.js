@@ -102,7 +102,7 @@ async function setup (t, testnet) {
   const store = new Corestore(storage)
   const swarm = new Hyperswarm({ bootstrap })
 
-  const service = new RpcDiscovery(store.namespace('rpc-discovery'), swarm)
+  const service = new RpcDiscovery(store.namespace('autodiscovery'), swarm)
   await service.ready()
 
   t.teardown(async () => {

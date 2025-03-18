@@ -11,13 +11,13 @@ const pino = require('pino')
 const RpcDiscovery = require('.')
 
 const runCmd = command('run',
-  flag('--storage|-s [path]', 'storage path, defaults to ./rpc-discovery'),
+  flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery'),
   flag('--scraper-public-key [scraper-public-key]', 'Public key of a dht-prometheus scraper'),
   flag('--scraper-secret [scraper-secret]', 'Secret of the dht-prometheus scraper'),
   flag('--scraper-alias [scraper-alias]', '(optional) Alias with which to register to the scraper'),
 
   async function ({ flags }) {
-    const storage = flags.storage || 'rpc-discovery'
+    const storage = flags.storage || 'autodiscovery'
 
     const logger = pino()
 
@@ -39,12 +39,12 @@ const runCmd = command('run',
 
       const scraperPublicKey = IdEnc.decode(flags.scraperPublicKey)
       const scraperSecret = IdEnc.decode(flags.scraperSecret)
-      const prometheusServiceName = 'rpc-discovery'
+      const prometheusServiceName = 'autodiscovery'
 
       let prometheusAlias = flags.scraperAlias
       if (prometheusAlias && prometheusAlias.length > 99) throw new Error('The Prometheus alias must have length less than 100')
       if (!prometheusAlias) {
-        prometheusAlias = `rpc-discovery-${IdEnc.normalize(swarm.keyPair.publicKey)}`.slice(0, 99)
+        prometheusAlias = `autodiscovery-${IdEnc.normalize(swarm.keyPair.publicKey)}`.slice(0, 99)
       }
 
       instrumentation = new HyperInstrumentation({
@@ -60,11 +60,11 @@ const runCmd = command('run',
     }
 
     const service = new RpcDiscovery(
-      store.namespace('rpc-discovery'), swarm
+      store.namespace('autodiscovery'), swarm
     )
 
     goodbye(async () => {
-      logger.info('Shutting down RPC-discovery service')
+      logger.info('Shutting down autodiscovery service')
       if (instrumentation) await instrumentation.close()
       await swarm.destroy()
       await service.close()
@@ -72,7 +72,7 @@ const runCmd = command('run',
 
     if (instrumentation) await instrumentation.ready()
 
-    logger.info('Starting RPC-discovery service')
+    logger.info('Starting autodiscovery service')
     await service.ready()
 
     swarm.join(service.base.discoveryKey)
@@ -84,6 +84,6 @@ const runCmd = command('run',
   }
 )
 
-const cmd = command('rpc-discovery', runCmd)
+const cmd = command('autodiscovery', runCmd)
 
 cmd.parse()

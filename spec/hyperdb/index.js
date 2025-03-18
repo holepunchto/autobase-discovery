@@ -4,7 +4,7 @@
 const { IndexEncoder, c } = require('hyperdb/runtime')
 const { version, getEncoding, setVersion } = require('./messages.js')
 
-// '@rpc-discovery/service-entry' collection key
+// '@autodiscovery/service-entry' collection key
 const collection0_key = new IndexEncoder([
   IndexEncoder.BUFFER
 ], { prefix: 0 })
@@ -14,10 +14,10 @@ function collection0_indexify (record) {
   return a === undefined ? [] : [a]
 }
 
-// '@rpc-discovery/service-entry' value encoding
-const collection0_enc = getEncoding('@rpc-discovery/service-entry/hyperdb#0')
+// '@autodiscovery/service-entry' value encoding
+const collection0_enc = getEncoding('@autodiscovery/service-entry/hyperdb#0')
 
-// '@rpc-discovery/service-entry' reconstruction function
+// '@autodiscovery/service-entry' reconstruction function
 function collection0_reconstruct (version, keyBuf, valueBuf) {
   const key = collection0_key.decode(keyBuf)
   setVersion(version)
@@ -25,7 +25,7 @@ function collection0_reconstruct (version, keyBuf, valueBuf) {
   record.publicKey = key[0]
   return record
 }
-// '@rpc-discovery/service-entry' key reconstruction function
+// '@autodiscovery/service-entry' key reconstruction function
 function collection0_reconstruct_key (keyBuf) {
   const key = collection0_key.decode(keyBuf)
   return {
@@ -33,9 +33,9 @@ function collection0_reconstruct_key (keyBuf) {
   }
 }
 
-// '@rpc-discovery/service-entry'
+// '@autodiscovery/service-entry'
 const collection0 = {
-  name: '@rpc-discovery/service-entry',
+  name: '@autodiscovery/service-entry',
   id: 0,
   encodeKey (record) {
     const key = [record.publicKey]
@@ -70,7 +70,7 @@ module.exports = { version, collections, indexes, resolveCollection, resolveInde
 
 function resolveCollection (name) {
   switch (name) {
-    case '@rpc-discovery/service-entry': return collection0
+    case '@autodiscovery/service-entry': return collection0
     default: return null
   }
 }
