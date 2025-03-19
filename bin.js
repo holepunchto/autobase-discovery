@@ -11,16 +11,15 @@ const pino = require('pino')
 const Autodiscovery = require('.')
 
 const runCmd = command('run',
-  arg('<accessSeed>', '32-byte secret (in hex or z32 format) to protect the RPC endpoints'),
+  arg('<rpcAllowedPublicKey>', 'public key of peers that are allowed to modify the discovery db (in hex or z32 format)'),
   flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery'),
   flag('--scraper-public-key [scraper-public-key]', 'Public key of a dht-prometheus scraper'),
   flag('--scraper-secret [scraper-secret]', 'Secret of the dht-prometheus scraper'),
   flag('--scraper-alias [scraper-alias]', '(optional) Alias with which to register to the scraper'),
 
   async function ({ flags, args }) {
-    const accessSeed = IdEnc.decode(args.accessSeed)
     const storage = flags.storage || 'autodiscovery'
-
+    const rpcAllowedPublicKey = IdEnc.decode(args.rpcAllowedPublicKey)
     const logger = pino()
 
     const store = new Corestore(storage)
@@ -62,7 +61,7 @@ const runCmd = command('run',
     }
 
     const service = new Autodiscovery(
-      store.namespace('autodiscovery'), swarm, accessSeed
+      store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey
     )
 
     goodbye(async () => {
