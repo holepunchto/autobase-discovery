@@ -1,6 +1,6 @@
 # RPC Discovery
 
-Automatic service discovery with self-registering services, using [autobase](https://github.com/holepunchto/autobase). Works will with [protomux-rpc](https://github.com/holepunchto/protomux-rpc) services.
+Automatic service discovery with self-registering services, using [autobase](https://github.com/holepunchto/autobase). Works well with [protomux-rpc](https://github.com/holepunchto/protomux-rpc) services.
 
 Clients discover the RPC services by querying the autodiscovery's [hyperdb](https://github.com/holepunchto/hyperdb), which is an autobase view.
 
