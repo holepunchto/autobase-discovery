@@ -4,19 +4,21 @@ const Corestore = require('corestore')
 const IdEnc = require('hypercore-id-encoding')
 const Hyperswarm = require('hyperswarm')
 const goodbye = require('graceful-goodbye')
-const { command, flag } = require('paparam')
+const { command, flag, arg } = require('paparam')
 const HyperInstrumentation = require('hyper-instrument')
 const pino = require('pino')
 
-const RpcDiscovery = require('.')
+const Autodiscovery = require('.')
 
 const runCmd = command('run',
+  arg('<accessSeed>', '32-byte secret (in hex or z32 format) to protect the RPC endpoints'),
   flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery'),
   flag('--scraper-public-key [scraper-public-key]', 'Public key of a dht-prometheus scraper'),
   flag('--scraper-secret [scraper-secret]', 'Secret of the dht-prometheus scraper'),
   flag('--scraper-alias [scraper-alias]', '(optional) Alias with which to register to the scraper'),
 
-  async function ({ flags }) {
+  async function ({ flags, args }) {
+    const accessSeed = IdEnc.decode(args.accessSeed)
     const storage = flags.storage || 'autodiscovery'
 
     const logger = pino()
@@ -59,8 +61,8 @@ const runCmd = command('run',
       instrumentation.registerLogger(logger)
     }
 
-    const service = new RpcDiscovery(
-      store.namespace('autodiscovery'), swarm
+    const service = new Autodiscovery(
+      store.namespace('autodiscovery'), swarm, accessSeed
     )
 
     goodbye(async () => {
