@@ -4,7 +4,6 @@ const Corestore = require('corestore')
 const Hyperswarm = require('hyperswarm')
 const getTestnet = require('hyperdht/testnet')
 const b4a = require('b4a')
-const safetyCatch = require('safety-catch')
 
 const RpcDiscovery = require('..')
 const RegisterClient = require('../client/register')
@@ -109,7 +108,7 @@ test('No RPC with incorrect access seed', async t => {
   // TODO: needs timeout option in protomux-rpc-client to do cleanly
   // (we now just verify that it can't connect within 1 sec)
   const putProm = new Promise((resolve, reject) => {
-    client.putService(key1, 'my-service').then(resolve, safetyCatch)
+    client.putService(key1, 'my-service').then(resolve, resolve)
     setTimeout(() => reject(new Error('TIMEOUT')), 1000)
   })
   await t.exception(async () => await putProm, /TIMEOUT/)
