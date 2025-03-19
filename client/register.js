@@ -8,8 +8,7 @@ const PutServiceRequest = resolveStruct('@autodiscovery/put-service-request')
 
 class RpcDiscoveryRegisterClient extends ProtomuxRpcClient {
   constructor (serverKey, dht, accessSeed, opts = {}) {
-    accessSeed = IdEnc.decode(accessSeed)
-    const keyPair = HyperDHT.keyPair(accessSeed)
+    const keyPair = HyperDHT.keyPair(IdEnc.decode(accessSeed))
 
     super(serverKey, dht, { ...opts, keyPair })
   }
