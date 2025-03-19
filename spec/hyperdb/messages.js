@@ -13,15 +13,19 @@ let version = VERSION
 const encoding0 = {
   preencode (state, m) {
     c.fixed32.preencode(state, m.publicKey)
+    c.string.preencode(state, m.service)
   },
   encode (state, m) {
     c.fixed32.encode(state, m.publicKey)
+    c.string.encode(state, m.service)
   },
   decode (state) {
     const r0 = c.fixed32.decode(state)
+    const r1 = c.string.decode(state)
 
     return {
-      publicKey: r0
+      publicKey: r0,
+      service: r1
     }
   }
 }
@@ -30,21 +34,24 @@ const encoding0 = {
 const encoding1 = {
   preencode (state, m) {
     c.uint.preencode(state, m.op)
-    state.end++ // max flag is 2 so always one byte
+    state.end++ // max flag is 4 so always one byte
 
     if (m.writerKey) c.fixed32.preencode(state, m.writerKey)
     if (m.serviceKey) c.fixed32.preencode(state, m.serviceKey)
+    if (m.serviceName) c.string.preencode(state, m.serviceName)
   },
   encode (state, m) {
     const flags =
       (m.writerKey ? 1 : 0) |
-      (m.serviceKey ? 2 : 0)
+      (m.serviceKey ? 2 : 0) |
+      (m.serviceName ? 4 : 0)
 
     c.uint.encode(state, m.op)
     c.uint.encode(state, flags)
 
     if (m.writerKey) c.fixed32.encode(state, m.writerKey)
     if (m.serviceKey) c.fixed32.encode(state, m.serviceKey)
+    if (m.serviceName) c.string.encode(state, m.serviceName)
   },
   decode (state) {
     const r0 = c.uint.decode(state)
@@ -53,7 +60,8 @@ const encoding1 = {
     return {
       op: r0,
       writerKey: (flags & 1) !== 0 ? c.fixed32.decode(state) : null,
-      serviceKey: (flags & 2) !== 0 ? c.fixed32.decode(state) : null
+      serviceKey: (flags & 2) !== 0 ? c.fixed32.decode(state) : null,
+      serviceName: (flags & 4) !== 0 ? c.string.decode(state) : null
     }
   }
 }
@@ -64,14 +72,17 @@ const encoding2 = encoding0
 // @autodiscovery/service-entry/hyperdb#0
 const encoding3 = {
   preencode (state, m) {
-
+    c.string.preencode(state, m.service)
   },
   encode (state, m) {
-
+    c.string.encode(state, m.service)
   },
   decode (state) {
+    const r1 = c.string.decode(state)
+
     return {
-      publicKey: null
+      publicKey: null,
+      service: r1
     }
   }
 }

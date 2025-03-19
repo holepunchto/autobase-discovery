@@ -7,13 +7,26 @@
       "namespace": "autodiscovery",
       "id": 0,
       "type": 1,
-      "indexes": [],
+      "indexes": [
+        "@autodiscovery/services"
+      ],
       "schema": "@autodiscovery/service-entry",
       "derived": false,
       "key": [
         "publicKey"
       ],
       "trigger": null
+    },
+    {
+      "name": "services",
+      "namespace": "autodiscovery",
+      "id": 1,
+      "type": 2,
+      "collection": "@autodiscovery/service-entry",
+      "unique": false,
+      "key": [
+        "service"
+      ]
     }
   ]
 }

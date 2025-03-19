@@ -93,10 +93,15 @@ class Autodiscovery extends ReadyResource {
 
     for (const node of nodes) {
       if (node.value.op === ops.ADD_SERVICE) {
-        const { serviceKey } = node.value
+        try {
+          const { serviceKey, serviceName } = node.value
 
-        if (await view.has(serviceKey)) continue
-        await view.insert(serviceKey)
+          if (await view.has(serviceKey)) continue
+          await view.insert(serviceKey, serviceName)
+        } catch (e) {
+          console.error(e)
+          console.log('Ignored invalid service entry') // TODO: cleanly
+        }
       } else if (node.value.op === ops.ADD_WRITER) {
         await base.addWriter(node.value.writerKey, { isIndexer: true })
       }
@@ -104,16 +109,16 @@ class Autodiscovery extends ReadyResource {
   }
 
   async _onPutService (stream, req) {
-    await this.addService(req.publicKey)
+    await this.addService(req.publicKey, req.service)
   }
 
-  async addService (serviceKey) {
+  async addService (serviceKey, serviceName) {
     serviceKey = IdEnc.decode(serviceKey)
-    await this.base.append({ op: ops.ADD_SERVICE, serviceKey })
+    await this.base.append({ op: ops.ADD_SERVICE, serviceKey, serviceName })
   }
 
-  getKeys ({ limit = 100 } = {}) {
-    return this.view.list({ limit })
+  getKeys (service, { limit = 100 } = {}) {
+    return this.view.list(service, { limit })
   }
 }
 

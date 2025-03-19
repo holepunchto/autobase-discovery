@@ -16,6 +16,11 @@ function build () {
         name: 'publicKey',
         type: 'fixed32',
         required: true
+      },
+      {
+        name: 'service',
+        type: 'string',
+        required: true
       }
     ]
   })
@@ -37,6 +42,11 @@ function build () {
         name: 'serviceKey',
         type: 'fixed32',
         required: false
+      },
+      {
+        name: 'serviceName',
+        type: 'string',
+        required: false
       }
     ]
   })
@@ -47,6 +57,11 @@ function build () {
       {
         name: 'publicKey',
         type: 'fixed32',
+        required: true
+      },
+      {
+        name: 'service',
+        type: 'string',
         required: true
       }
     ]
@@ -61,6 +76,13 @@ function build () {
     name: 'service-entry',
     schema: '@autodiscovery/service-entry',
     key: ['publicKey']
+  })
+
+  rpcDiscoveryDb.indexes.register({
+    name: 'services',
+    collection: '@autodiscovery/service-entry',
+    key: ['service'],
+    unique: false
   })
 
   HyperDB.toDisk(db)

@@ -12,6 +12,12 @@
           "required": true,
           "type": "fixed32",
           "version": 1
+        },
+        {
+          "name": "service",
+          "required": true,
+          "type": "string",
+          "version": 1
         }
       ]
     },
@@ -38,6 +44,12 @@
           "required": false,
           "type": "fixed32",
           "version": 1
+        },
+        {
+          "name": "serviceName",
+          "required": false,
+          "type": "string",
+          "version": 1
         }
       ]
     },
@@ -51,6 +63,12 @@
           "name": "publicKey",
           "required": true,
           "type": "fixed32",
+          "version": 1
+        },
+        {
+          "name": "service",
+          "required": true,
+          "type": "string",
           "version": 1
         }
       ]

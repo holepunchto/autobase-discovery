@@ -9,6 +9,7 @@ const LookupClient = require('./lookup')
 
 const lookup = command('list',
   arg('<dbKey>', 'Public key of the autodiscovery database'),
+  arg('<service>', 'Name of the service for which to list the entries'),
   flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery-client'),
   flag('--limit|-l [nr]', 'Max amount of services to show (default 10)'),
   flag('--debug|-d', 'Debug mode (more logs)'),
@@ -18,6 +19,7 @@ const lookup = command('list',
     const limit = flags.limit || 10
 
     const dbKey = IdEnc.decode(args.dbKey)
+    const { service } = args
 
     const swarm = new Hyperswarm()
     const store = new Corestore(storage)
@@ -42,10 +44,13 @@ const lookup = command('list',
       process.exit(1)
     }
 
-    console.log('Available services:')
-    for await (const { publicKey } of await client.list({ limit })) {
+    console.log(`Available instances for service '${service}':`)
+    let foundOne = false
+    for await (const { publicKey } of await client.list(service, { limit })) {
       console.info(`  - ${IdEnc.normalize(publicKey)}`)
+      foundOne = true
     }
+    if (!foundOne) console.info('None (did not find any instances)')
 
     await client.close()
     await swarm.destroy()
