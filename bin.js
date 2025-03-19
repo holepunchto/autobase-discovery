@@ -11,7 +11,7 @@ const pino = require('pino')
 const Autodiscovery = require('.')
 
 const runCmd = command('run',
-  arg('<rpcAllowedPublicKey>', 'public key of peers that are allowed to modify the discovery db (in hex or z32 format)'),
+  arg('<rpcAllowedPublicKey>', 'public key of peers that are allowed to send requests over RPC (in hex or z32 format)'),
   flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery'),
   flag('--scraper-public-key [scraper-public-key]', 'Public key of a dht-prometheus scraper'),
   flag('--scraper-secret [scraper-secret]', 'Secret of the dht-prometheus scraper'),
