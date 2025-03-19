@@ -75,7 +75,7 @@ test('registry flow with RPC', async t => {
 
   const key1 = 'a'.repeat(64)
   const client = new RegisterClient(
-    service.serverPublicKey, dht, { accessSeed: service.accessSeed }
+    service.serverPublicKey, dht, service.accessSeed
   )
 
   await client.putService(key1, 'my-service')
@@ -103,7 +103,7 @@ test('No RPC with incorrect access seed', async t => {
 
   const key1 = 'a'.repeat(64)
   const client = new RegisterClient(
-    service.serverPublicKey, dht, { accessSeed: 'f'.repeat(64) }
+    service.serverPublicKey, dht, 'f'.repeat(64)
   )
 
   // TODO: needs timeout option in protomux-rpc-client to do cleanly

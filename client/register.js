@@ -3,9 +3,17 @@ const IdEnc = require('hypercore-id-encoding')
 const ProtomuxRpcClient = require('protomux-rpc-client')
 
 const { resolveStruct } = require('../spec/hyperschema')
+const HyperDHT = require('hyperdht')
 const PutServiceRequest = resolveStruct('@autodiscovery/put-service-request')
 
 class RpcDiscoveryRegisterClient extends ProtomuxRpcClient {
+  constructor (serverKey, dht, accessSeed, opts = {}) {
+    accessSeed = IdEnc.decode(accessSeed)
+    const keyPair = HyperDHT.keyPair(accessSeed)
+
+    super(serverKey, dht, { ...opts, keyPair })
+  }
+
   async putService (publicKey, service) {
     publicKey = IdEnc.decode(publicKey)
     await this._makeRequest(
