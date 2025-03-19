@@ -3,6 +3,7 @@ const Autobase = require('autobase')
 const IdEnc = require('hypercore-id-encoding')
 const ProtomuxRPC = require('protomux-rpc')
 const cenc = require('compact-encoding')
+const b4a = require('b4a')
 
 const RpcDiscoveryDb = require('./lib/db')
 const { resolveStruct } = require('./spec/hyperschema')
@@ -19,11 +20,12 @@ class Autodiscovery extends ReadyResource {
   static OPS = ops
   static VALUE_ENCODING = opEncoding
 
-  constructor (store, swarm, { bootstrap = null } = {}) {
+  constructor (store, swarm, rpcAllowedPublicKey, { bootstrap = null } = {}) {
     super()
 
     this.swarm = swarm
     this.store = store
+    this.rpcAllowedPublicKey = IdEnc.decode(rpcAllowedPublicKey)
 
     this.base = new Autobase(this.store, bootstrap, {
       valueEncoding: opEncoding,
@@ -55,6 +57,9 @@ class Autodiscovery extends ReadyResource {
 
     this.swarm.on('connection', (conn) => {
       this.store.replicate(conn)
+
+      // We only set up RPC to trusted peers (who know the secret seed)
+      if (!b4a.equals(conn.remotePublicKey, this.rpcAllowedPublicKey)) return
 
       const rpc = new ProtomuxRPC(conn, {
         id: this.swarm.keyPair.publicKey,

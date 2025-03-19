@@ -5,7 +5,7 @@ const Hyperswarm = require('hyperswarm')
 const getTestnet = require('hyperdht/testnet')
 const b4a = require('b4a')
 
-const RpcDiscovery = require('..')
+const Autodiscovery = require('..')
 const RegisterClient = require('../client/register')
 const HyperDHT = require('hyperdht')
 const RpcDiscoveryLookupClient = require('../client/lookup')
@@ -65,7 +65,7 @@ test('registry flow with RPC', async t => {
   t.plan(1)
   const testnet = await getTestnet()
   const { bootstrap } = testnet
-  const { service } = await setup(t, testnet)
+  const { service, accessSeed } = await setup(t, testnet)
   await service.ready()
   await service.swarm.flush()
 
@@ -74,7 +74,7 @@ test('registry flow with RPC', async t => {
 
   const key1 = 'a'.repeat(64)
   const client = new RegisterClient(
-    service.serverPublicKey, dht
+    service.serverPublicKey, dht, accessSeed
   )
 
   await client.putService(key1, 'my-service')
@@ -87,6 +87,31 @@ test('registry flow with RPC', async t => {
   const keys = await toList(service.getKeys('my-service'))
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }])
   await client.close()
+})
+
+test('No RPC with incorrect access seed', async t => {
+  t.plan(1)
+  const testnet = await getTestnet()
+  const { bootstrap } = testnet
+  const { service } = await setup(t, testnet)
+  await service.ready()
+  await service.swarm.flush()
+
+  const dht = new HyperDHT({ bootstrap })
+  t.teardown(async () => { await dht.destroy() }, { order: 100 })
+
+  const key1 = 'a'.repeat(64)
+  const client = new RegisterClient(
+    service.serverPublicKey, dht, 'f'.repeat(64)
+  )
+
+  // TODO: needs timeout option in protomux-rpc-client to do cleanly
+  // (we now just verify that it can't connect within 1 sec)
+  const putProm = new Promise((resolve, reject) => {
+    client.putService(key1, 'my-service').then(resolve, resolve)
+    setTimeout(() => reject(new Error('TIMEOUT')), 1000)
+  })
+  await t.exception(async () => await putProm, /TIMEOUT/)
 })
 
 test('lookup flow with lookupClient', async t => {
@@ -135,7 +160,9 @@ async function setup (t, testnet) {
   const store = new Corestore(storage)
   const swarm = new Hyperswarm({ bootstrap })
 
-  const service = new RpcDiscovery(store.namespace('autodiscovery'), swarm)
+  const accessSeed = b4a.from('b'.repeat(64), 'hex')
+  const rpcAllowedPublicKey = HyperDHT.keyPair(accessSeed).publicKey
+  const service = new Autodiscovery(store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey)
   await service.ready()
 
   t.teardown(async () => {
@@ -145,7 +172,7 @@ async function setup (t, testnet) {
     await testnet.destroy()
   }, { order: 10000 })
 
-  return { service, bootstrap, swarm }
+  return { service, bootstrap, swarm, accessSeed }
 }
 
 async function waitForNewEntry (service) {

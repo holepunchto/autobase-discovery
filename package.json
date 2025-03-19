@@ -54,7 +54,7 @@
     "paparam": "^1.8.0",
     "pino": "^9.6.0",
     "protomux-rpc": "^1.7.0",
-    "protomux-rpc-client": "^1.0.0",
+    "protomux-rpc-client": "^1.1.0",
     "ready-resource": "^1.1.2"
   }
 }
