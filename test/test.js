@@ -5,7 +5,7 @@ const Hyperswarm = require('hyperswarm')
 const getTestnet = require('hyperdht/testnet')
 const b4a = require('b4a')
 
-const RpcDiscovery = require('..')
+const Autodiscovery = require('..')
 const RegisterClient = require('../client/register')
 const HyperDHT = require('hyperdht')
 const RpcDiscoveryLookupClient = require('../client/lookup')
@@ -65,7 +65,7 @@ test('registry flow with RPC', async t => {
   t.plan(1)
   const testnet = await getTestnet()
   const { bootstrap } = testnet
-  const { service } = await setup(t, testnet)
+  const { service, accessSeed } = await setup(t, testnet)
   await service.ready()
   await service.swarm.flush()
 
@@ -74,7 +74,7 @@ test('registry flow with RPC', async t => {
 
   const key1 = 'a'.repeat(64)
   const client = new RegisterClient(
-    service.serverPublicKey, dht, service.accessSeed
+    service.serverPublicKey, dht, accessSeed
   )
 
   await client.putService(key1, 'my-service')
@@ -161,7 +161,8 @@ async function setup (t, testnet) {
   const swarm = new Hyperswarm({ bootstrap })
 
   const accessSeed = b4a.from('b'.repeat(64), 'hex')
-  const service = new RpcDiscovery(store.namespace('autodiscovery'), swarm, accessSeed)
+  const rpcAllowedPublicKey = HyperDHT.keyPair(accessSeed).publicKey
+  const service = new Autodiscovery(store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey)
   await service.ready()
 
   t.teardown(async () => {
@@ -171,7 +172,7 @@ async function setup (t, testnet) {
     await testnet.destroy()
   }, { order: 10000 })
 
-  return { service, bootstrap, swarm }
+  return { service, bootstrap, swarm, accessSeed }
 }
 
 async function waitForNewEntry (service) {
