@@ -82,6 +82,7 @@ const runCmd = command('run',
     logger.info(`Autobase key: ${IdEnc.normalize(service.base.key)}`)
     logger.info(`Name-service database key: ${IdEnc.normalize(service.dbKey)}`)
     logger.info(`RPC server public key: ${IdEnc.normalize(service.serverPublicKey)}`)
+    logger.info(`Accepting RPC connections from public key ${IdEnc.normalize(rpcAllowedPublicKey)}`)
   }
 )
 
