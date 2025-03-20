@@ -1,4 +1,4 @@
-# RPC Discovery
+# Autobase Discovery
 
 Automatic service discovery with self-registering services, using [autobase](https://github.com/holepunchto/autobase). Works well with [protomux-rpc](https://github.com/holepunchto/protomux-rpc) services.
 
@@ -7,18 +7,18 @@ Clients discover the RPC services by querying the autodiscovery's [hyperdb](http
 ## Install
 
 ```
-npm i autodiscovery
+npm i autobase-discovery
 ```
 
 ## Usage
 
 ### Security
 
-We use a simple security model, taking advantage of the authentication mechanism of HyperDHT.
+Autodiscovery uses a simple security model, taking advantage of the authentication mechanism of HyperDHT.
 
-All clients who wish to register to the autodiscovery service should know a secret seed (64 bytes). This seed is passed to the autodiscovery client, which deterministically generates a DHT keyPair. This keyPair is then used to open a connection to the autodiscovery RPC server.
+All clients who wish to register to the autodiscovery service know a shared secret seed (64 bytes). This seed is passed to the autodiscovery clients, which deterministically generate a DHT keyPair. This keyPair is then used to open a connection to the autodiscovery RPC server.
 
-The autodiscovery service is passed the public key corresponding to the secret seed, and only sets up the RPC endpoints for peers with that public key.
+The autodiscovery service is passed the public key corresponding to the secret seed upon startup, and only sets up the RPC endpoints for peers with that public key.
 
 The security relies on HyperDHT fully opening a connection only after the server verified that the client knows the secret key corresponding to its public key.
 

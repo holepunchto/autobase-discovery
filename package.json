@@ -1,5 +1,5 @@
 {
-  "name": "autodiscovery",
+  "name": "autobase-discovery",
   "version": "1.0.0",
   "description": "Automatic service discovery with self-registering services, using autobase",
   "main": "index.js",
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/holepunchto/autodiscovery.git"
+    "url": "git+https://github.com/holepunchto/autobase-discovery.git"
   },
   "keywords": [
     "discovery",
@@ -31,9 +31,9 @@
   "author": "Holepunch",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/holepunchto/autodiscovery/issues"
+    "url": "https://github.com/holepunchto/autobase-discovery/issues"
   },
-  "homepage": "https://github.com/holepunchto/autodiscovery#readme",
+  "homepage": "https://github.com/holepunchto/autobase-discovery#readme",
   "devDependencies": {
     "b4a": "^1.6.7",
     "brittle": "^3.12.1",
