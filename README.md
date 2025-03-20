@@ -12,11 +12,30 @@ npm i autodiscovery
 
 ## Usage
 
+### Security
+
+We use a simple security model, taking advantage of the authentication mechanism of HyperDHT.
+
+All clients who wish to register to the autodiscovery service should know a secret seed (64 bytes). This seed is passed to the autodiscovery client, which deterministically generates a DHT keyPair. This keyPair is then used to open a connection to the autodiscovery RPC server.
+
+The autodiscovery service is passed the public key corresponding to the secret seed, and only sets up the RPC endpoints for peers with that public key.
+
+The security relies on HyperDHT fully opening a connection only after the server verified that the client knows the secret key corresponding to its public key.
+
+Note: to check which public key corresponds to a seed, run:
+```
+HyperDHT.keyPair(Buffer.from(seed, 'hex')).publicKey.toString('hex')
+```
+
+(assuming `seed` is in hexadecimal notation)
+
 ### Server
 
 ```
-autodiscovery run
+autodiscovery run <rpc-allowed-public-key>
 ```
+
+Where `rpc-allowed-public-key` is the public key corresponding to the clients' seed (see the 'Security' section above).
 
 The RPC server's public key and the database key will be printed.
 
