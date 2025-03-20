@@ -1,3 +1,4 @@
+const { once } = require('events')
 const ReadyResource = require('ready-resource')
 const Autobase = require('autobase')
 const IdEnc = require('hypercore-id-encoding')
@@ -54,6 +55,15 @@ class Autodiscovery extends ReadyResource {
   async _open () {
     await this.base.ready()
     await this.view.ready()
+
+    // Hack to ensure our db key does not update after the first
+    // entry is added (since we add it ourselves)
+    if (this.base.isIndexer && this.view.db.core.length === 0) {
+      await Promise.all([
+        once(this.view.db.core, 'append'),
+        this.addService('f'.repeat(64), 'dummy-service')
+      ])
+    }
 
     this.swarm.on('connection', (conn) => {
       this.store.replicate(conn)

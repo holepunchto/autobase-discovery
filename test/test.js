@@ -149,7 +149,7 @@ test('lookup flow with lookupClient', async t => {
     await store.close()
   }, { order: 50 })
 
-  const clientKeys = await toList(await client.list())
+  const clientKeys = await toList(await client.list('my-service'))
   t.alike(keys, clientKeys, 'can lookup with client')
 })
 
