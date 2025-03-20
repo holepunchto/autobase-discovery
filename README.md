@@ -33,5 +33,5 @@ See [client/bin.js](client/bin.js) for the programmatic way of listing the avail
 Alternatively, use the CLI:
 
 ```
-autodiscovery-client list <autodiscovery database key>
+autodiscovery-client list <autodiscovery database key> <service-name>
 ```
