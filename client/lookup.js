@@ -39,6 +39,8 @@ class BaseClient extends ReadyResource {
       if (this.db.db.core.peers.length === 0) {
         await this.swarm.flush()
       }
+
+      await this.core.update()
       return
     }
     await new Promise((resolve, reject) => {
@@ -74,10 +76,7 @@ class BaseClient extends ReadyResource {
 class RpcDiscoveryLookupClient extends BaseClient {
   async list (service, { limit = 3 } = {}) {
     if (!this.opened) await this.ready()
-
-    if (this.db.db.core.length === 0) {
-      await this.ensureDbLoaded()
-    }
+    await this.ensureDbLoaded()
 
     return this.db.list(service, { limit })
   }
