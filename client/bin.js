@@ -44,6 +44,8 @@ const lookup = command('list',
       process.exit(1)
     }
 
+    console.log(`Autobase Discovery database version: ${client.db.db.core.length}`)
+
     console.log(`Available instances for service '${service}':`)
     let foundOne = false
     for await (const { publicKey } of await client.list(service, { limit })) {

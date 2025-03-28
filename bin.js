@@ -63,6 +63,9 @@ const runCmd = command('run',
     const service = new Autodiscovery(
       store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey
     )
+    service.on('rpc-session', () => {
+      logger.info('Opened RPC session')
+    })
 
     goodbye(async () => {
       logger.info('Shutting down autodiscovery service')
@@ -79,6 +82,7 @@ const runCmd = command('run',
     swarm.join(service.base.discoveryKey)
     swarm.join(service.dbDiscoveryKey)
 
+    logger.info(`DB version: ${service.view.db.core.length}`)
     logger.info(`Autobase key: ${IdEnc.normalize(service.base.key)}`)
     logger.info(`Name-service database key: ${IdEnc.normalize(service.dbKey)}`)
     logger.info(`RPC server public key: ${IdEnc.normalize(service.serverPublicKey)}`)

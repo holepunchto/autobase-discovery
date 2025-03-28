@@ -70,6 +70,7 @@ class Autodiscovery extends ReadyResource {
 
       // We only set up RPC to trusted peers (who know the secret seed)
       if (!b4a.equals(conn.remotePublicKey, this.rpcAllowedPublicKey)) return
+      this.emit('rpc-session')
 
       const rpc = new ProtomuxRPC(conn, {
         id: this.swarm.keyPair.publicKey,
