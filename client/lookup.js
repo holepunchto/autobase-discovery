@@ -37,7 +37,8 @@ class BaseClient extends ReadyResource {
     if (this.db.db.core.length > 0) {
       // TODO: smarter
       if (this.db.db.core.peers.length === 0) {
-        await this.swarm.flush()
+        // Use swarm.flush when that is working again
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
       await this.core.update()
