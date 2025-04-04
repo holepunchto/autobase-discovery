@@ -69,8 +69,25 @@ const encoding1 = {
 // @autodiscovery/put-service-request
 const encoding2 = encoding0
 
-// @autodiscovery/service-entry/hyperdb#0
+// @autodiscovery/delete-service-request
 const encoding3 = {
+  preencode (state, m) {
+    c.fixed32.preencode(state, m.publicKey)
+  },
+  encode (state, m) {
+    c.fixed32.encode(state, m.publicKey)
+  },
+  decode (state) {
+    const r0 = c.fixed32.decode(state)
+
+    return {
+      publicKey: r0
+    }
+  }
+}
+
+// @autodiscovery/service-entry/hyperdb#0
+const encoding4 = {
   preencode (state, m) {
     c.string.preencode(state, m.service)
   },
@@ -112,7 +129,8 @@ function getEncoding (name) {
     case '@autodiscovery/service-entry': return encoding0
     case '@autodiscovery/op': return encoding1
     case '@autodiscovery/put-service-request': return encoding2
-    case '@autodiscovery/service-entry/hyperdb#0': return encoding3
+    case '@autodiscovery/delete-service-request': return encoding3
+    case '@autodiscovery/service-entry/hyperdb#0': return encoding4
     default: throw new Error('Encoder not found ' + name)
   }
 }

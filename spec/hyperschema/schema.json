@@ -72,6 +72,20 @@
           "version": 1
         }
       ]
+    },
+    {
+      "name": "delete-service-request",
+      "namespace": "autodiscovery",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "publicKey",
+          "required": true,
+          "type": "fixed32",
+          "version": 1
+        }
+      ]
     }
   ]
 }

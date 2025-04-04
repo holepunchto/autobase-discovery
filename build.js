@@ -67,6 +67,17 @@ function build () {
     ]
   })
 
+  ops.register({
+    name: 'delete-service-request',
+    fields: [
+      {
+        name: 'publicKey',
+        type: 'fixed32',
+        required: true
+      }
+    ]
+  })
+
   Hyperschema.toDisk(schema)
 
   const db = HyperDB.from(SCHEMA_DIR, DB_DIR)

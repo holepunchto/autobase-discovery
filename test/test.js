@@ -61,6 +61,37 @@ test('registry and lookup flow without RPC--multiple services', async t => {
   )
 })
 
+test('delete flow without RPC (happy path)', async t => {
+  const testnet = await getTestnet(t)
+  const { service } = await setup(t, testnet)
+  await service.ready()
+
+  const key1 = 'a'.repeat(64)
+  const key2 = 'b'.repeat(64)
+
+  await Promise.all([
+    waitForNewEntry(service),
+    service.addService(key1, 'my-service')
+  ])
+  await Promise.all([
+    waitForNewEntry(service),
+    service.addService(key2, 'my-service')
+  ])
+  {
+    const keys = (await toList(service.getKeys('my-service'))).map(e => e.publicKey)
+    t.alike(keys, [b4a.from(key1, 'hex'), b4a.from(key2, 'hex')])
+  }
+
+  await Promise.all([
+    waitForNewEntry(service),
+    service.deleteService(key1)
+  ])
+  {
+    const keys = (await toList(service.getKeys('my-service'))).map(e => e.publicKey)
+    t.alike(keys, [b4a.from(key2, 'hex')], 'key got deleted')
+  }
+})
+
 test('registry flow with RPC', async t => {
   t.plan(1)
   const testnet = await getTestnet()

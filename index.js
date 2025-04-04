@@ -10,11 +10,13 @@ const RpcDiscoveryDb = require('./lib/db')
 const { resolveStruct } = require('./spec/hyperschema')
 const opEncoding = resolveStruct('@autodiscovery/op')
 const PutServiceRequest = resolveStruct('@autodiscovery/put-service-request')
+const DeleteServiceRequest = resolveStruct('@autodiscovery/delete-service-request')
 
 const ops = {
   ADD_WRITER: 0,
   REMOVE_WRITER: 1,
-  ADD_SERVICE: 2
+  ADD_SERVICE: 2,
+  DELETE_SERVICE: 3
 }
 
 class Autodiscovery extends ReadyResource {
@@ -81,6 +83,11 @@ class Autodiscovery extends ReadyResource {
         { requestEncoding: PutServiceRequest, responseEncoding: cenc.none },
         this._onPutService.bind(this, conn)
       )
+      rpc.respond(
+        'delete-service',
+        { requestEncoding: DeleteServiceRequest, responseEncoding: cenc.none },
+        this._onDeleteService.bind(this, conn)
+      )
     })
 
     // DEVNOTE: the caller is responsible for maintaining
@@ -118,6 +125,14 @@ class Autodiscovery extends ReadyResource {
           console.error(e)
           console.log('Ignored invalid service entry') // TODO: cleanly
         }
+      } else if (node.value.op === ops.DELETE_SERVICE) {
+        try {
+          const { serviceKey } = node.value
+          await view.delete(serviceKey)
+        } catch (e) {
+          console.error(e)
+          console.log('Ignored invalid delete request') // TODO: cleanly
+        }
       } else if (node.value.op === ops.ADD_WRITER) {
         await base.addWriter(node.value.writerKey, { isIndexer: true })
       }
@@ -128,9 +143,18 @@ class Autodiscovery extends ReadyResource {
     await this.addService(req.publicKey, req.service)
   }
 
+  async _onDeleteService (stream, req) {
+    await this.deleteService(req.publicKey)
+  }
+
   async addService (serviceKey, serviceName) {
     serviceKey = IdEnc.decode(serviceKey)
     await this.base.append({ op: ops.ADD_SERVICE, serviceKey, serviceName })
+  }
+
+  async deleteService (serviceKey) {
+    serviceKey = IdEnc.decode(serviceKey)
+    await this.base.append({ op: ops.DELETE_SERVICE, serviceKey })
   }
 
   getKeys (service, { limit = 100 } = {}) {
