@@ -116,23 +116,16 @@ class Autodiscovery extends ReadyResource {
 
     for (const node of nodes) {
       if (node.value.op === ops.ADD_SERVICE) {
-        try {
-          const { serviceKey, serviceName } = node.value
+        const value = node.value
+        if (!value.serviceKey || !value.serviceName) continue
+        const { serviceKey, serviceName } = node.value
 
-          if (await view.has(serviceKey)) continue
-          await view.insert(serviceKey, serviceName)
-        } catch (e) {
-          console.error(e)
-          console.log('Ignored invalid service entry') // TODO: cleanly
-        }
+        if (await view.has(serviceKey)) continue
+        await view.insert(serviceKey, serviceName)
       } else if (node.value.op === ops.DELETE_SERVICE) {
-        try {
-          const { serviceKey } = node.value
-          await view.delete(serviceKey)
-        } catch (e) {
-          console.error(e)
-          console.log('Ignored invalid delete request') // TODO: cleanly
-        }
+        if (!node.value.serviceKey) continue
+        const { serviceKey } = node.value
+        await view.delete(serviceKey)
       } else if (node.value.op === ops.ADD_WRITER) {
         await base.addWriter(node.value.writerKey, { isIndexer: true })
       }
