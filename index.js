@@ -117,7 +117,7 @@ class Autodiscovery extends ReadyResource {
     for (const node of nodes) {
       if (node.value.op === ops.ADD_SERVICE) {
         const value = node.value
-        if (!value.serviceKey || !value.serviceName) continue
+        if (!value.serviceKey || !value.serviceName) continue // TODO: warning system
         const { serviceKey, serviceName } = node.value
 
         if (await view.has(serviceKey)) continue
