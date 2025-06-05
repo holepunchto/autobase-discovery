@@ -252,10 +252,59 @@ test('lookup flow with lookupClient', async t => {
   t.alike(keys, clientKeys, 'can lookup with client')
 })
 
-async function setup (t, testnet) {
+test('sets up health check for new service', async t => {
+  const testnet = await getTestnet(t)
+  const { service } = await setup(t, testnet)
+  await service.ready()
+
+  t.is(service.healthChecker.getOverview().size, 0, 'no healthchecker yet (sanity check)')
+
+  const key1 = 'a'.repeat(64)
+  await service.addService(key1, 'my-service')
+
+  {
+    const keys = await toList(service.getKeys('my-service'))
+    t.alike(
+      keys,
+      [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }],
+      'sanity check'
+    )
+  }
+
+  t.is(service.healthChecker.getOverview().size, 1, 'healthchecker added')
+})
+
+test('sets up health checks for existing entries upon startup', async t => {
+  const testnet = await getTestnet(t)
+  const { service, storage, store } = await setup(t, testnet)
+  await service.ready()
+
+  const key1 = 'a'.repeat(64)
+
+  await service.addService(key1, 'my-service')
+
+  {
+    const keys = await toList(service.getKeys('my-service'))
+    t.alike(
+      keys,
+      [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }],
+      'sanity check'
+    )
+  }
+
+  await service.close()
+  await store.close()
+
+  const { service: reopenedService } = await setup(t, testnet, { storage })
+  await reopenedService.ready()
+
+  t.is(reopenedService.healthChecker.getOverview().size, 1, 'healthchecker added')
+})
+
+async function setup (t, testnet, { storage } = {}) {
   const { bootstrap } = testnet
 
-  const storage = await t.tmp()
+  if (!storage) storage = await t.tmp()
   const store = new Corestore(storage)
   const swarm = new Hyperswarm({ bootstrap })
 
@@ -271,7 +320,7 @@ async function setup (t, testnet) {
     await testnet.destroy()
   }, { order: 10000 })
 
-  return { service, bootstrap, swarm, accessSeed }
+  return { service, bootstrap, swarm, accessSeed, storage, store }
 }
 
 async function waitForNewEntry (service) {

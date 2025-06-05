@@ -1,4 +1,3 @@
-const { once } = require('events')
 const ReadyResource = require('ready-resource')
 const Autobase = require('autobase')
 const IdEnc = require('hypercore-id-encoding')
@@ -8,6 +7,7 @@ const b4a = require('b4a')
 
 const RpcDiscoveryDb = require('./lib/db')
 const { resolveStruct } = require('./spec/hyperschema')
+const HealthChecker = require('./lib/health-checker')
 const opEncoding = resolveStruct('@autodiscovery/op')
 const PutServiceRequest = resolveStruct('@autodiscovery/put-service-request')
 const DeleteServiceRequest = resolveStruct('@autodiscovery/delete-service-request')
@@ -36,6 +36,11 @@ class Autodiscovery extends ReadyResource {
       apply: this._apply.bind(this),
       close: this._closeAutobase.bind(this)
     })
+
+    this.healthChecker = new HealthChecker(this.swarm.dht, {
+      frequency: this.healthCheckFrequency,
+      maxTime: this.healthCheckMaxTime
+    })
   }
 
   get view () {
@@ -57,14 +62,18 @@ class Autodiscovery extends ReadyResource {
   async _open () {
     await this.base.ready()
     await this.view.ready()
+    this.healthChecker.on('change', (key, healthy) => {
+      // TODO: update db
+      // console.log('changed', key, healthy)
+    })
+    await this.healthChecker.ready()
+
+    this._setupChangeWatcher() // Does not throw
 
     // Hack to ensure our db key does not update after the first
     // entry is added (since we add it ourselves)
     if (this.base.isIndexer && this.view.db.core.length === 0) {
-      await Promise.all([
-        once(this.view.db.core, 'append'),
-        this.addService('f'.repeat(64), 'dummy-service')
-      ])
+      await this.base.append(null)
     }
 
     this.swarm.on('connection', (conn) => {
@@ -96,8 +105,27 @@ class Autodiscovery extends ReadyResource {
   }
 
   async _close () {
+    this._changeWatcher.destroy()
+    await this.healthChecker.close()
     await this.view.close()
     await this.base.close()
+  }
+
+  async _setupChangeWatcher () {
+    this._changeWatcher = this.view.createChangeWatcher()
+    try {
+      for await (const { collection, type, value } of this._changeWatcher) {
+        if (collection !== '@autodiscovery/service-entry') continue
+        if (type === 'insert') {
+          this.healthChecker.addTarget(value.publicKey)
+        } else if (type === 'delete') {
+          this.healthChecker.deleteTarget(value.publicKey) // TODO: test
+        }
+      }
+    } catch (e) {
+      if (this.closing) return // expected (destroys the watcher)
+      console.error('changes error', e) // TODO: what? (Should not happen, but should probably crash if it does)
+    }
   }
 
   _openAutobase (store) {
