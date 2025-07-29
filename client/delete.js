@@ -13,7 +13,7 @@ class RpcDiscoveryDeleteClient extends ReadyResource {
 
     this.keyPair = HyperDHT.keyPair(IdEnc.decode(accessSeed))
     this.rpcClient = new ProtomuxRpcClient(dht, { keyPair: this.keyPair })
-    this.key = IdEnc.decode(serverKey)
+    this.serverKey = IdEnc.decode(serverKey)
   }
 
   async _open () {}
@@ -27,7 +27,7 @@ class RpcDiscoveryDeleteClient extends ReadyResource {
 
     publicKey = IdEnc.decode(publicKey)
     await this.rpcClient.makeRequest(
-      this.key,
+      this.serverKey,
       'delete-service',
       { publicKey },
       { requestEncoding: DeleteServiceRequest, responseEncoding: cenc.none }
