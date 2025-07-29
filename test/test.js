@@ -158,6 +158,8 @@ test('delete flow with RPC (happy path)', async t => {
     const keys = (await toList(service.getKeys('my-service'))).map(e => e.publicKey)
     t.alike(keys, [b4a.from(key2, 'hex')], 'key got deleted')
   }
+
+  await client.close()
 })
 
 test('No RPC with incorrect access seed', async t => {
