@@ -16,17 +16,24 @@ const runCmd = command('run',
   flag('--scraper-public-key [scraper-public-key]', 'Public key of a dht-prometheus scraper'),
   flag('--scraper-secret [scraper-secret]', 'Secret of the dht-prometheus scraper'),
   flag('--scraper-alias [scraper-alias]', '(optional) Alias with which to register to the scraper'),
+  flag('--bootstrap [bootstrap]', '(for tests) Bootstrap DHT node to use, in format <host>:<port> (e.g. 127.0.0.1:10000)'),
 
   async function ({ flags, args }) {
+    const logger = pino()
     const storage = flags.storage || 'autodiscovery'
     const rpcAllowedPublicKey = IdEnc.decode(args.rpcAllowedPublicKey)
-    const logger = pino()
+    let bootstrap = null
+    if (flags.bootstrap) {
+      const [host, port] = flags.bootstrap.split(':')
+      bootstrap = [{ port: parseInt(port), host }]
+      logger.warn(`Using non-standard bootstrap: ${bootstrap[0].host}:${bootstrap[0].port}`)
+    }
 
     const store = new Corestore(storage)
     await store.ready()
 
     const swarm = new Hyperswarm(
-      { keyPair: await store.createKeyPair('public-key') }
+      { keyPair: await store.createKeyPair('public-key'), bootstrap }
     )
     swarm.on('connection', (conn, peerInfo) => {
       const key = IdEnc.normalize(peerInfo.publicKey)
