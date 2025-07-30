@@ -7,6 +7,7 @@ const goodbye = require('graceful-goodbye')
 const { command, flag, arg } = require('paparam')
 const HyperInstrumentation = require('hyper-instrument')
 const pino = require('pino')
+const path = require('path')
 
 const Autodiscovery = require('.')
 
@@ -20,7 +21,7 @@ const runCmd = command('run',
 
   async function ({ flags, args }) {
     const logger = pino()
-    const storage = flags.storage || 'autodiscovery'
+    const storage = path.resolve(flags.storage || 'autodiscovery')
     const rpcAllowedPublicKey = IdEnc.decode(args.rpcAllowedPublicKey)
     let bootstrap = null
     if (flags.bootstrap) {
@@ -29,6 +30,7 @@ const runCmd = command('run',
       logger.warn(`Using non-standard bootstrap: ${bootstrap[0].host}:${bootstrap[0].port}`)
     }
 
+    logger.info(`Using storage: ${storage}`)
     const store = new Corestore(storage)
     await store.ready()
 
