@@ -9,6 +9,7 @@ const HyperDHT = require('hyperdht')
 
 const LookupClient = require('./lookup')
 const DeleteClient = require('./delete')
+const RegisterClient = require('./register')
 
 const lookup = command('list',
   arg('<dbKey>', 'Public key of the autodiscovery database'),
@@ -64,7 +65,7 @@ const lookup = command('list',
 )
 
 const deleteCmd = command('delete',
-  description('Request to delete a service entry from the database. This is an advanced administartion command which requires a secret to authenticate with the autobase-discovery service.'),
+  description('Request to delete a service entry from the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'),
   arg('<rpcKey>', 'Key where the RPC server listens'),
   arg('<accessSeed>', 'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'),
   arg('<publicKey>', 'Public key of the service to remove'),
@@ -98,5 +99,39 @@ const deleteCmd = command('delete',
   }
 )
 
-const cmd = command('autodiscovery-client', lookup, deleteCmd)
+const registerCmd = command('register',
+  description('Request to add a service entry to the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'),
+  arg('<rpcKey>', 'Key where the RPC server listens'),
+  arg('<accessSeed>', 'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'),
+  arg('<serviceName>', 'Service name to add the key to'),
+  arg('<publicKey>', 'Public key of the service to add'),
+  async function ({ args }) {
+    const rpcServerKey = IdEnc.decode(args.rpcKey)
+    const accessSeed = IdEnc.decode(args.accessSeed)
+    const publicKey = IdEnc.decode(args.publicKey)
+    const serviceName = args.serviceName
+
+    const dht = new HyperDHT()
+    const client = new RegisterClient(rpcServerKey, dht, accessSeed)
+
+    let done = false
+    goodbye(async () => {
+      if (!done) console.info('Cancelling...')
+      if (client.opened) await client.close()
+      await dht.destroy()
+    })
+
+    console.info('Opening connection... (press ctrl-c to cancel)')
+    await client.ready()
+
+    console.info(`Sending register request to RPC server ${IdEnc.normalize(rpcServerKey)}, using public key ${IdEnc.normalize(client.keyPair.publicKey)}...`)
+    await client.putService(publicKey, serviceName)
+    console.info(`Successfully requested to register service ${IdEnc.normalize(publicKey)}`)
+
+    done = true
+    goodbye.exit()
+  }
+)
+
+const cmd = command('autodiscovery-client', lookup, registerCmd, deleteCmd)
 cmd.parse()
