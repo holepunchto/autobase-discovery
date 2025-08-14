@@ -89,7 +89,7 @@ const runCmd = command('run',
     await service.ready()
 
     swarm.join(service.base.discoveryKey)
-    swarm.join(service.dbDiscoveryKey)
+    swarm.join(service.dbDiscoveryKey, { client: true, server: true }) // Note: needs client: true when being replicated by a blind-peer
 
     logger.info(`DB version: ${service.view.db.core.length}`)
     logger.info(`Autobase key: ${IdEnc.normalize(service.base.key)}`)
