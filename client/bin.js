@@ -103,8 +103,8 @@ const registerCmd = command('register',
   description('Request to add a service entry to the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'),
   arg('<rpcKey>', 'Key where the RPC server listens'),
   arg('<accessSeed>', 'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'),
-  arg('<publicKey>', 'Public key of the service to add'),
   arg('<serviceName>', 'Service name to add the key to'),
+  arg('<publicKey>', 'Public key of the service to add'),
   async function ({ args }) {
     const rpcServerKey = IdEnc.decode(args.rpcKey)
     const accessSeed = IdEnc.decode(args.accessSeed)
