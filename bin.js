@@ -20,7 +20,7 @@ const runCmd = command('run',
   flag('--bootstrap [bootstrap]', '(for tests) Bootstrap DHT node to use, in format <host>:<port> (e.g. 127.0.0.1:10000)'),
 
   async function ({ flags, args }) {
-    const logger = pino()
+    const logger = pino({ name: 'autobase-discovery' })
     const storage = path.resolve(flags.storage || 'autodiscovery')
     const rpcAllowedPublicKey = IdEnc.decode(args.rpcAllowedPublicKey)
     let bootstrap = null
