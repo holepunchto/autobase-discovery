@@ -65,7 +65,7 @@ const lookup = command('list',
 )
 
 const deleteCmd = command('delete',
-  description('Request to delete a service entry from the database. This is an advanced administartion command which requires a secret to authenticate with the autobase-discovery service.'),
+  description('Request to delete a service entry from the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'),
   arg('<rpcKey>', 'Key where the RPC server listens'),
   arg('<accessSeed>', 'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'),
   arg('<publicKey>', 'Public key of the service to remove'),
@@ -100,7 +100,7 @@ const deleteCmd = command('delete',
 )
 
 const registerCmd = command('register',
-  description('Request to add a service entry to the database. This is an advanced administartion command which requires a secret to authenticate with the autobase-discovery service.'),
+  description('Request to add a service entry to the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'),
   arg('<rpcKey>', 'Key where the RPC server listens'),
   arg('<accessSeed>', 'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'),
   arg('<publicKey>', 'Public key of the service to add'),
