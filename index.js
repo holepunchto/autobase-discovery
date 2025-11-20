@@ -23,12 +23,14 @@ class Autodiscovery extends ReadyResource {
   static OPS = ops
   static VALUE_ENCODING = opEncoding
 
-  constructor (store, swarm, rpcAllowedPublicKey, { bootstrap = null } = {}) {
+  constructor (store, swarm, rpcAllowedPublicKey, { bootstrap = null, connectionLimit = 10, rateLimit = { capacity: 10, tokensPerInterval: 10, intervalMs: 100 } } = {}) {
     super()
 
     this.swarm = swarm
     this.store = store
     this.rpcAllowedPublicKey = IdEnc.decode(rpcAllowedPublicKey)
+
+    this.rpcMiddleware = new ProtomuxRpcMiddleware({ connectionLimit, rateLimit })
 
     this.base = new Autobase(this.store, bootstrap, {
       valueEncoding: opEncoding,
@@ -76,8 +78,11 @@ class Autodiscovery extends ReadyResource {
 
       const rpc = new ProtomuxRPC(conn, {
         id: this.swarm.keyPair.publicKey,
-        valueEncoding: cenc.none
+        valueEncoding: cenc.none,
+        onrequest: ({ id, method, value }) => this.rpcMiddleware.onrequest({ id, method, value }, conn),
+        onrequestdone: (method, value) => this.rpcMiddleware.onrequestdone({ id, method, value }, conn, error) // for logging, connection timings and concurrent request timings
       })
+
       rpc.respond(
         'put-service',
         { requestEncoding: PutServiceRequest, responseEncoding: cenc.none },
