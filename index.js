@@ -2,9 +2,14 @@ const { once } = require('events')
 const ReadyResource = require('ready-resource')
 const Autobase = require('autobase')
 const IdEnc = require('hypercore-id-encoding')
-const ProtomuxRPC = require('protomux-rpc')
 const cenc = require('compact-encoding')
 const b4a = require('b4a')
+
+// those packages are not available yet
+const ProtomuxRpcRouter = require('protomux-rpc-router')
+const rateLimit = require('protomux-rpc-rate-limit-middleware')
+const requestLogger = require('protomux-rpc-request-logger-middleware')
+const encoding = require('protomux-rpc-encoding-middleware')
 
 const RpcDiscoveryDb = require('./lib/db')
 const { resolveStruct } = require('./spec/hyperschema')
@@ -29,6 +34,44 @@ class Autodiscovery extends ReadyResource {
     this.swarm = swarm
     this.store = store
     this.rpcAllowedPublicKey = IdEnc.decode(rpcAllowedPublicKey)
+    
+    this._rpcServer = new ProtomuxRpcRouter()
+    this._rpcServer.use(requestLogger())
+    this._rpcServer.use(rateLimit({
+      capacity: 100,
+      tokensPerInterval: 100,
+      intervalMs: 1000
+    }))
+    this._rpcServer
+      .method(
+        'put-service', 
+        { requestEncoding: PutServiceRequest, responseEncoding: cenc.none },
+        this._onPutService.bind(this)
+      )
+      .use(rateLimit({
+        capacity: 100,
+        tokensPerInterval: 100,
+        intervalMs: 1000
+      }))
+
+    this._rpcServer.method(
+      'delete-service',
+      { requestEncoding: DeleteServiceRequest, responseEncoding: cenc.none },
+      this._onDeleteService.bind(this)
+    )
+
+    // actually better API should be treated encoding as middleware also
+    this._rpcServer
+      .method(
+        'put-service-new-api', 
+        rateLimit({
+          capacity: 100,
+          tokensPerInterval: 100,
+          intervalMs: 1000
+        }),
+        encoding({ request: PutServiceRequest, response: cenc.none }),
+        this._onPutService.bind(this)
+      )
 
     this.base = new Autobase(this.store, bootstrap, {
       valueEncoding: opEncoding,
@@ -74,20 +117,7 @@ class Autodiscovery extends ReadyResource {
       if (!b4a.equals(conn.remotePublicKey, this.rpcAllowedPublicKey)) return
       this.emit('rpc-session')
 
-      const rpc = new ProtomuxRPC(conn, {
-        id: this.swarm.keyPair.publicKey,
-        valueEncoding: cenc.none
-      })
-      rpc.respond(
-        'put-service',
-        { requestEncoding: PutServiceRequest, responseEncoding: cenc.none },
-        this._onPutService.bind(this, conn)
-      )
-      rpc.respond(
-        'delete-service',
-        { requestEncoding: DeleteServiceRequest, responseEncoding: cenc.none },
-        this._onDeleteService.bind(this, conn)
-      )
+      this._rpcServer.handleConnection(conn)
     })
 
     // DEVNOTE: the caller is responsible for maintaining
@@ -132,11 +162,11 @@ class Autodiscovery extends ReadyResource {
     }
   }
 
-  async _onPutService (stream, req) {
+  async _onPutService (req, _stream) {
     await this.addService(req.publicKey, req.service)
   }
 
-  async _onDeleteService (stream, req) {
+  async _onDeleteService (req, _stream) {
     await this.deleteService(req.publicKey)
   }
 
