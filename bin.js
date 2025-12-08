@@ -9,6 +9,7 @@ const HyperInstrumentation = require('hyper-instrument')
 const pino = require('pino')
 const path = require('path')
 
+const { version: ownVersion } = require('./package.json')
 const Autodiscovery = require('.')
 
 const runCmd = command('run',
@@ -63,7 +64,8 @@ const runCmd = command('run',
         scraperPublicKey,
         prometheusAlias,
         scraperSecret,
-        prometheusServiceName
+        prometheusServiceName,
+        version: ownVersion
       })
 
       instrumentation.registerLogger(logger)
