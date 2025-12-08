@@ -4,6 +4,7 @@ const Corestore = require('corestore')
 const Hyperswarm = require('hyperswarm')
 const getTestnet = require('hyperdht/testnet')
 const b4a = require('b4a')
+const ProtomuxRPCRouter = require('protomux-rpc-router')
 
 const Autodiscovery = require('..')
 const RegisterClient = require('../client/register')
@@ -263,7 +264,8 @@ async function setup (t, testnet) {
 
   const accessSeed = b4a.from('b'.repeat(64), 'hex')
   const rpcAllowedPublicKey = HyperDHT.keyPair(accessSeed).publicKey
-  const service = new Autodiscovery(store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey)
+  const router = new ProtomuxRPCRouter()
+  const service = new Autodiscovery(store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey, router)
   await service.ready()
 
   t.teardown(async () => {
