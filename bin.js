@@ -8,6 +8,8 @@ const { command, flag, arg } = require('paparam')
 const HyperInstrumentation = require('hyper-instrument')
 const pino = require('pino')
 const path = require('path')
+const ProtomuxRPCRouter = require('protomux-rpc-router')
+const defaultMiddleware = require('protomux-rpc-middleware')
 
 const { version: ownVersion } = require('./package.json')
 const Autodiscovery = require('.')
@@ -19,6 +21,9 @@ const runCmd = command('run',
   flag('--scraper-secret [scraper-secret]', 'Secret of the dht-prometheus scraper'),
   flag('--scraper-alias [scraper-alias]', '(optional) Alias with which to register to the scraper'),
   flag('--bootstrap [bootstrap]', '(for tests) Bootstrap DHT node to use, in format <host>:<port> (e.g. 127.0.0.1:10000)'),
+  flag('--rate-limit-capacity [rate-limit-capacity]', '(optional) Rate limit bucket capacity for RPC requests'),
+  flag('--rate-limit-interval-ms [rate-limit-interval-ms]', '(optional) Rate limit refill interval in milliseconds'),
+  flag('--concurrent-limit-capacity [concurrent-limit-capacity]', '(optional) Concurrent limit capacity for RPC requests'),
 
   async function ({ flags, args }) {
     const logger = pino({ name: 'autobase-discovery' })
@@ -30,6 +35,10 @@ const runCmd = command('run',
       bootstrap = [{ port: parseInt(port), host }]
       logger.warn(`Using non-standard bootstrap: ${bootstrap[0].host}:${bootstrap[0].port}`)
     }
+
+    const rateLimitCapacity = flags.rateLimitCapacity ? parseInt(flags.rateLimitCapacity) : 10
+    const rateLimitIntervalMs = flags.rateLimitIntervalMs ? parseInt(flags.rateLimitIntervalMs) : 100
+    const concurrentLimitCapacity = flags.concurrentLimitCapacity ? parseInt(flags.concurrentLimitCapacity) : 16
 
     logger.info(`Using storage: ${storage}`)
     const store = new Corestore(storage)
@@ -71,8 +80,22 @@ const runCmd = command('run',
       instrumentation.registerLogger(logger)
     }
 
+    const router = new ProtomuxRPCRouter()
+    router.use(defaultMiddleware({
+      logger: {
+        instance: logger
+      },
+      rateLimit: { capacity: rateLimitCapacity, intervalMs: rateLimitIntervalMs },
+      concurrentLimit: { capacity: concurrentLimitCapacity }
+    }))
+    if (instrumentation) {
+      router.registerMetrics(instrumentation.promClient)
+    }
     const service = new Autodiscovery(
-      store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey
+      store.namespace('autodiscovery'),
+      swarm,
+      rpcAllowedPublicKey,
+      router
     )
     service.on('rpc-session', () => {
       logger.info('Opened RPC session')
@@ -83,6 +106,7 @@ const runCmd = command('run',
       if (instrumentation) await instrumentation.close()
       await swarm.destroy()
       await service.close()
+      await router.close()
     })
 
     if (instrumentation) await instrumentation.ready()

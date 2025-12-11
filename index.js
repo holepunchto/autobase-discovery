@@ -2,7 +2,6 @@ const { once } = require('events')
 const ReadyResource = require('ready-resource')
 const Autobase = require('autobase')
 const IdEnc = require('hypercore-id-encoding')
-const ProtomuxRPC = require('protomux-rpc')
 const cenc = require('compact-encoding')
 const b4a = require('b4a')
 
@@ -23,7 +22,7 @@ class Autodiscovery extends ReadyResource {
   static OPS = ops
   static VALUE_ENCODING = opEncoding
 
-  constructor (store, swarm, rpcAllowedPublicKey, { bootstrap = null } = {}) {
+  constructor (store, swarm, rpcAllowedPublicKey, router, { bootstrap = null } = {}) {
     super()
 
     this.swarm = swarm
@@ -36,6 +35,18 @@ class Autodiscovery extends ReadyResource {
       apply: this._apply.bind(this),
       close: this._closeAutobase.bind(this)
     })
+
+    this.router = router
+    this.router.method(
+      'put-service',
+      { requestEncoding: PutServiceRequest, responseEncoding: cenc.none },
+      this._onPutService.bind(this)
+    )
+    this.router.method(
+      'delete-service',
+      { requestEncoding: DeleteServiceRequest, responseEncoding: cenc.none },
+      this._onDeleteService.bind(this)
+    )
   }
 
   get view () {
@@ -57,6 +68,7 @@ class Autodiscovery extends ReadyResource {
   async _open () {
     await this.base.ready()
     await this.view.ready()
+    await this.router.ready()
 
     // Hack to ensure our db key does not update after the first
     // entry is added (since we add it ourselves)
@@ -74,20 +86,7 @@ class Autodiscovery extends ReadyResource {
       if (!b4a.equals(conn.remotePublicKey, this.rpcAllowedPublicKey)) return
       this.emit('rpc-session')
 
-      const rpc = new ProtomuxRPC(conn, {
-        id: this.swarm.keyPair.publicKey,
-        valueEncoding: cenc.none
-      })
-      rpc.respond(
-        'put-service',
-        { requestEncoding: PutServiceRequest, responseEncoding: cenc.none },
-        this._onPutService.bind(this, conn)
-      )
-      rpc.respond(
-        'delete-service',
-        { requestEncoding: DeleteServiceRequest, responseEncoding: cenc.none },
-        this._onDeleteService.bind(this, conn)
-      )
+      this.router.handleConnection(conn, this.swarm.keyPair.publicKey)
     })
 
     // DEVNOTE: the caller is responsible for maintaining
@@ -132,11 +131,11 @@ class Autodiscovery extends ReadyResource {
     }
   }
 
-  async _onPutService (stream, req) {
+  async _onPutService (req) {
     await this.addService(req.publicKey, req.service)
   }
 
-  async _onDeleteService (stream, req) {
+  async _onDeleteService (req) {
     await this.deleteService(req.publicKey)
   }
 
