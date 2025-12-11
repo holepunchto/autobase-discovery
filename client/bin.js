@@ -11,7 +11,8 @@ const LookupClient = require('./lookup')
 const DeleteClient = require('./delete')
 const RegisterClient = require('./register')
 
-const lookup = command('list',
+const lookup = command(
+  'list',
   arg('<dbKey>', 'Public key of the autodiscovery database'),
   arg('<service>', 'Name of the service for which to list the entries'),
   flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery-client'),
@@ -36,9 +37,7 @@ const lookup = command('list',
       store.replicate(conn)
     })
 
-    const client = new LookupClient(
-      dbKey, swarm, store.namespace('autodiscovery-lookup')
-    )
+    const client = new LookupClient(dbKey, swarm, store.namespace('autodiscovery-lookup'))
     await client.ready()
     console.log('Loading database...')
     try {
@@ -64,10 +63,16 @@ const lookup = command('list',
   }
 )
 
-const deleteCmd = command('delete',
-  description('Request to delete a service entry from the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'),
+const deleteCmd = command(
+  'delete',
+  description(
+    'Request to delete a service entry from the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'
+  ),
   arg('<rpcKey>', 'Key where the RPC server listens'),
-  arg('<accessSeed>', 'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'),
+  arg(
+    '<accessSeed>',
+    'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'
+  ),
   arg('<publicKey>', 'Public key of the service to remove'),
   async function ({ args, flags }) {
     const rpcServerKey = IdEnc.decode(args.rpcKey)
@@ -76,9 +81,7 @@ const deleteCmd = command('delete',
 
     const dht = new HyperDHT()
 
-    const client = new DeleteClient(
-      rpcServerKey, dht, accessSeed
-    )
+    const client = new DeleteClient(rpcServerKey, dht, accessSeed)
 
     let done = false
     goodbye(async () => {
@@ -90,7 +93,9 @@ const deleteCmd = command('delete',
     console.info('Opening connection... (press ctrl-c to cancel)')
     await client.ready()
 
-    console.log(`Sending delete request to RPC server ${IdEnc.normalize(rpcServerKey)}, using public key ${IdEnc.normalize(client.keyPair.publicKey)}...`)
+    console.log(
+      `Sending delete request to RPC server ${IdEnc.normalize(rpcServerKey)}, using public key ${IdEnc.normalize(client.keyPair.publicKey)}...`
+    )
     await client.deleteService(publicKey)
     console.log(`Successfully requested to delete service ${IdEnc.normalize(publicKey)}`)
 
@@ -99,10 +104,16 @@ const deleteCmd = command('delete',
   }
 )
 
-const registerCmd = command('register',
-  description('Request to add a service entry to the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'),
+const registerCmd = command(
+  'register',
+  description(
+    'Request to add a service entry to the database. This is an advanced administration command which requires a secret to authenticate with the autobase-discovery service.'
+  ),
   arg('<rpcKey>', 'Key where the RPC server listens'),
-  arg('<accessSeed>', 'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'),
+  arg(
+    '<accessSeed>',
+    'Secret seed which gives access to the RPC. Note that an invalid seed results in a request that hangs.'
+  ),
   arg('<serviceName>', 'Service name to add the key to'),
   arg('<publicKey>', 'Public key of the service to add'),
   async function ({ args }) {
@@ -124,7 +135,9 @@ const registerCmd = command('register',
     console.info('Opening connection... (press ctrl-c to cancel)')
     await client.ready()
 
-    console.info(`Sending register request to RPC server ${IdEnc.normalize(rpcServerKey)}, using public key ${IdEnc.normalize(client.keyPair.publicKey)}...`)
+    console.info(
+      `Sending register request to RPC server ${IdEnc.normalize(rpcServerKey)}, using public key ${IdEnc.normalize(client.keyPair.publicKey)}...`
+    )
     await client.putService(publicKey, serviceName)
     console.info(`Successfully requested to register service ${IdEnc.normalize(publicKey)}`)
 

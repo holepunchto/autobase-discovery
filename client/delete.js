@@ -8,7 +8,7 @@ const ReadyResource = require('ready-resource')
 const DeleteServiceRequest = resolveStruct('@autodiscovery/delete-service-request')
 
 class RpcDiscoveryDeleteClient extends ReadyResource {
-  constructor (serverKey, dht, accessSeed) {
+  constructor(serverKey, dht, accessSeed) {
     super()
 
     this.keyPair = HyperDHT.keyPair(IdEnc.decode(accessSeed))
@@ -16,13 +16,13 @@ class RpcDiscoveryDeleteClient extends ReadyResource {
     this.serverKey = IdEnc.decode(serverKey)
   }
 
-  async _open () {}
+  async _open() {}
 
-  async _close () {
+  async _close() {
     await this.rpcClient.close()
   }
 
-  async deleteService (publicKey) {
+  async deleteService(publicKey) {
     if (!this.opened) await this.ready()
 
     publicKey = IdEnc.decode(publicKey)

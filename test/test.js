@@ -14,23 +14,20 @@ const RpcDeleteClient = require('../client/delete')
 
 const DEBUG = false
 
-test('registry and lookup flow without RPC', async t => {
+test('registry and lookup flow without RPC', async (t) => {
   const testnet = await getTestnet(t)
   const { service } = await setup(t, testnet)
   await service.ready()
 
   const key1 = 'a'.repeat(64)
 
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key1, 'my-service')
-  ])
+  await Promise.all([waitForNewEntry(service), service.addService(key1, 'my-service')])
 
   const keys = await toList(service.getKeys('my-service'))
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }])
 })
 
-test('registry and lookup flow without RPC--multiple services', async t => {
+test('registry and lookup flow without RPC--multiple services', async (t) => {
   const testnet = await getTestnet(t)
   const { service } = await setup(t, testnet)
   await service.ready()
@@ -39,18 +36,9 @@ test('registry and lookup flow without RPC--multiple services', async t => {
   const key2 = 'b'.repeat(64)
   const key3 = 'c'.repeat(64)
 
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key1, 'my-service')
-  ])
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key2, 'my-service')
-  ])
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key3, 'other-service')
-  ])
+  await Promise.all([waitForNewEntry(service), service.addService(key1, 'my-service')])
+  await Promise.all([waitForNewEntry(service), service.addService(key2, 'my-service')])
+  await Promise.all([waitForNewEntry(service), service.addService(key3, 'other-service')])
 
   const keys = await toList(service.getKeys('my-service'))
   t.alike(
@@ -63,7 +51,7 @@ test('registry and lookup flow without RPC--multiple services', async t => {
   )
 })
 
-test('delete flow without RPC (happy path)', async t => {
+test('delete flow without RPC (happy path)', async (t) => {
   const testnet = await getTestnet(t)
   const { service } = await setup(t, testnet)
   await service.ready()
@@ -71,30 +59,21 @@ test('delete flow without RPC (happy path)', async t => {
   const key1 = 'a'.repeat(64)
   const key2 = 'b'.repeat(64)
 
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key1, 'my-service')
-  ])
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key2, 'my-service')
-  ])
+  await Promise.all([waitForNewEntry(service), service.addService(key1, 'my-service')])
+  await Promise.all([waitForNewEntry(service), service.addService(key2, 'my-service')])
   {
-    const keys = (await toList(service.getKeys('my-service'))).map(e => e.publicKey)
+    const keys = (await toList(service.getKeys('my-service'))).map((e) => e.publicKey)
     t.alike(keys, [b4a.from(key1, 'hex'), b4a.from(key2, 'hex')])
   }
 
-  await Promise.all([
-    waitForNewEntry(service),
-    service.deleteService(key1)
-  ])
+  await Promise.all([waitForNewEntry(service), service.deleteService(key1)])
   {
-    const keys = (await toList(service.getKeys('my-service'))).map(e => e.publicKey)
+    const keys = (await toList(service.getKeys('my-service'))).map((e) => e.publicKey)
     t.alike(keys, [b4a.from(key2, 'hex')], 'key got deleted')
   }
 })
 
-test('registry flow with RPC', async t => {
+test('registry flow with RPC', async (t) => {
   t.plan(1)
   const testnet = await getTestnet()
   const { bootstrap } = testnet
@@ -103,24 +82,24 @@ test('registry flow with RPC', async t => {
   await service.swarm.flush()
 
   const dht = new HyperDHT({ bootstrap })
-  t.teardown(async () => { await dht.destroy() }, { order: 100 })
-
-  const key1 = 'a'.repeat(64)
-  const client = new RegisterClient(
-    service.serverPublicKey, dht, accessSeed
+  t.teardown(
+    async () => {
+      await dht.destroy()
+    },
+    { order: 100 }
   )
 
-  await Promise.all([
-    waitForNewEntry(service),
-    client.putService(key1, 'my-service')
-  ])
+  const key1 = 'a'.repeat(64)
+  const client = new RegisterClient(service.serverPublicKey, dht, accessSeed)
+
+  await Promise.all([waitForNewEntry(service), client.putService(key1, 'my-service')])
 
   const keys = await toList(service.getKeys('my-service'))
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }])
   await client.close()
 })
 
-test('delete flow with RPC (happy path)', async t => {
+test('delete flow with RPC (happy path)', async (t) => {
   const testnet = await getTestnet()
   const { bootstrap } = testnet
   const { service, accessSeed } = await setup(t, testnet)
@@ -130,40 +109,34 @@ test('delete flow with RPC (happy path)', async t => {
   const key1 = 'a'.repeat(64)
   const key2 = 'b'.repeat(64)
 
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key1, 'my-service')
-  ])
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key2, 'my-service')
-  ])
+  await Promise.all([waitForNewEntry(service), service.addService(key1, 'my-service')])
+  await Promise.all([waitForNewEntry(service), service.addService(key2, 'my-service')])
   {
-    const keys = (await toList(service.getKeys('my-service'))).map(e => e.publicKey)
+    const keys = (await toList(service.getKeys('my-service'))).map((e) => e.publicKey)
     t.alike(keys, [b4a.from(key1, 'hex'), b4a.from(key2, 'hex')], 'sanity check')
   }
 
   const dht = new HyperDHT({ bootstrap })
-  t.teardown(async () => { await dht.destroy() }, { order: 100 })
-
-  const client = new RpcDeleteClient(
-    service.serverPublicKey, dht, accessSeed
+  t.teardown(
+    async () => {
+      await dht.destroy()
+    },
+    { order: 100 }
   )
 
-  await Promise.all([
-    waitForNewEntry(service),
-    client.deleteService(key1, 'my-service')
-  ])
+  const client = new RpcDeleteClient(service.serverPublicKey, dht, accessSeed)
+
+  await Promise.all([waitForNewEntry(service), client.deleteService(key1, 'my-service')])
 
   {
-    const keys = (await toList(service.getKeys('my-service'))).map(e => e.publicKey)
+    const keys = (await toList(service.getKeys('my-service'))).map((e) => e.publicKey)
     t.alike(keys, [b4a.from(key2, 'hex')], 'key got deleted')
   }
 
   await client.close()
 })
 
-test('No RPC with incorrect access seed', async t => {
+test('No RPC with incorrect access seed', async (t) => {
   t.plan(1)
   const testnet = await getTestnet()
   const { bootstrap } = testnet
@@ -172,12 +145,15 @@ test('No RPC with incorrect access seed', async t => {
   await service.swarm.flush()
 
   const dht = new HyperDHT({ bootstrap })
-  t.teardown(async () => { await dht.destroy() }, { order: 100 })
+  t.teardown(
+    async () => {
+      await dht.destroy()
+    },
+    { order: 100 }
+  )
 
   const key1 = 'a'.repeat(64)
-  const client = new RegisterClient(
-    service.serverPublicKey, dht, 'f'.repeat(64)
-  )
+  const client = new RegisterClient(service.serverPublicKey, dht, 'f'.repeat(64))
 
   // TODO: needs timeout option in protomux-rpc-client to do cleanly
   // (we now just verify that it can't connect within 1 sec)
@@ -189,7 +165,7 @@ test('No RPC with incorrect access seed', async t => {
   await client.close()
 })
 
-test('No delete RPC with incorrect access seed', async t => {
+test('No delete RPC with incorrect access seed', async (t) => {
   t.plan(1)
   const testnet = await getTestnet()
   const { bootstrap } = testnet
@@ -198,12 +174,15 @@ test('No delete RPC with incorrect access seed', async t => {
   await service.swarm.flush()
 
   const dht = new HyperDHT({ bootstrap })
-  t.teardown(async () => { await dht.destroy() }, { order: 100 })
+  t.teardown(
+    async () => {
+      await dht.destroy()
+    },
+    { order: 100 }
+  )
 
   const key1 = 'a'.repeat(64)
-  const client = new RpcDeleteClient(
-    service.serverPublicKey, dht, 'f'.repeat(64)
-  )
+  const client = new RpcDeleteClient(service.serverPublicKey, dht, 'f'.repeat(64))
 
   // TODO: needs timeout option in protomux-rpc-client to do cleanly
   // (we now just verify that it can't connect within 1 sec)
@@ -216,7 +195,7 @@ test('No delete RPC with incorrect access seed', async t => {
   await client.close()
 })
 
-test('lookup flow with lookupClient', async t => {
+test('lookup flow with lookupClient', async (t) => {
   t.plan(2)
   const testnet = await getTestnet()
   const { bootstrap } = testnet
@@ -225,10 +204,7 @@ test('lookup flow with lookupClient', async t => {
 
   const key1 = 'a'.repeat(64)
 
-  await Promise.all([
-    waitForNewEntry(service),
-    service.addService(key1, 'my-service')
-  ])
+  await Promise.all([waitForNewEntry(service), service.addService(key1, 'my-service')])
 
   const keys = await toList(service.getKeys('my-service'))
   t.alike(keys, [{ publicKey: b4a.from(key1, 'hex'), service: 'my-service' }], 'sanity check')
@@ -238,24 +214,25 @@ test('lookup flow with lookupClient', async t => {
 
   const swarm = new Hyperswarm({ bootstrap })
   const store = new Corestore(await t.tmp())
-  swarm.on('connection', conn => {
+  swarm.on('connection', (conn) => {
     if (DEBUG) console.log('DEBUG CLIENT connection opened')
     store.replicate(conn)
   })
-  const client = new RpcDiscoveryLookupClient(
-    service.dbKey, swarm, store
+  const client = new RpcDiscoveryLookupClient(service.dbKey, swarm, store)
+  t.teardown(
+    async () => {
+      await client.close()
+      await swarm.destroy()
+      await store.close()
+    },
+    { order: 50 }
   )
-  t.teardown(async () => {
-    await client.close()
-    await swarm.destroy()
-    await store.close()
-  }, { order: 50 })
 
   const clientKeys = await toList(await client.list('my-service'))
   t.alike(keys, clientKeys, 'can lookup with client')
 })
 
-async function setup (t, testnet) {
+async function setup(t, testnet) {
   const { bootstrap } = testnet
 
   const storage = await t.tmp()
@@ -265,24 +242,32 @@ async function setup (t, testnet) {
   const accessSeed = b4a.from('b'.repeat(64), 'hex')
   const rpcAllowedPublicKey = HyperDHT.keyPair(accessSeed).publicKey
   const router = new ProtomuxRPCRouter()
-  const service = new Autodiscovery(store.namespace('autodiscovery'), swarm, rpcAllowedPublicKey, router)
+  const service = new Autodiscovery(
+    store.namespace('autodiscovery'),
+    swarm,
+    rpcAllowedPublicKey,
+    router
+  )
   await service.ready()
 
-  t.teardown(async () => {
-    await service.close()
-    await swarm.destroy()
-    await store.close()
-    await testnet.destroy()
-  }, { order: 10000 })
+  t.teardown(
+    async () => {
+      await service.close()
+      await swarm.destroy()
+      await store.close()
+      await testnet.destroy()
+    },
+    { order: 10000 }
+  )
 
   return { service, bootstrap, swarm, accessSeed }
 }
 
-async function waitForNewEntry (service) {
+async function waitForNewEntry(service) {
   await once(service.view.db.core, 'append')
 }
 
-async function toList (stream) {
+async function toList(stream) {
   const res = []
   for await (const x of stream) {
     res.push(x)

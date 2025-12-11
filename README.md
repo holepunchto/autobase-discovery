@@ -23,6 +23,7 @@ The autodiscovery service is passed the public key corresponding to the secret s
 The security relies on HyperDHT fully opening a connection only after the server verified that the client knows the secret key corresponding to its public key.
 
 Note: to check which public key corresponds to a seed, run:
+
 ```
 HyperDHT.keyPair(Buffer.from(seed, 'hex')).publicKey.toString('hex')
 ```

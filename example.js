@@ -2,7 +2,7 @@ const Hyperswarm = require('hyperswarm')
 const IdEnc = require('hypercore-id-encoding')
 const RegisterClient = require('./client/register')
 
-async function main () {
+async function main() {
   const rpcServerKey = '<Enter autodiscovery RPC-server public key here>'
   const accessSeed = '<Enter autodiscovery access seed here>'
 

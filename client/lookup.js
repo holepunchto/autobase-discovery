@@ -4,7 +4,7 @@ const ReadyResource = require('ready-resource')
 const RpcDiscoveryDb = require('../lib/db')
 
 class BaseClient extends ReadyResource {
-  constructor (dbKey, swarm, store) {
+  constructor(dbKey, swarm, store) {
     super()
 
     this.dbKey = IdEnc.decode(dbKey)
@@ -17,7 +17,7 @@ class BaseClient extends ReadyResource {
     this.db = null
   }
 
-  async _open () {
+  async _open() {
     await this.core.ready()
 
     this.db = new RpcDiscoveryDb(this.core, { extension: false })
@@ -25,7 +25,7 @@ class BaseClient extends ReadyResource {
     this.swarm.join(this.core.discoveryKey, { client: true, server: false })
   }
 
-  async _close () {
+  async _close() {
     // Note: assumes we're not interested in this core elsewhere in our app
     this.swarm.leave(this.core.discoveryKey)
 
@@ -33,12 +33,12 @@ class BaseClient extends ReadyResource {
     await this.store.close()
   }
 
-  async ensureDbLoaded (timeoutMs = 10000) {
+  async ensureDbLoaded(timeoutMs = 10000) {
     if (this.db.db.core.length > 0) {
       // TODO: smarter
       if (this.db.db.core.peers.length === 0) {
         // Use swarm.flush when that is working again
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 1000))
       }
 
       await this.core.update()
@@ -53,13 +53,10 @@ class BaseClient extends ReadyResource {
         clearTimeout(timeout)
       }
 
-      timeout = setTimeout(
-        () => {
-          cleanup()
-          reject(new Error('Load-db Timeout'))
-        },
-        timeoutMs
-      )
+      timeout = setTimeout(() => {
+        cleanup()
+        reject(new Error('Load-db Timeout'))
+      }, timeoutMs)
       cancelHandler = () => {
         cleanup()
         reject(new Error('Client closed'))
@@ -75,7 +72,7 @@ class BaseClient extends ReadyResource {
 }
 
 class RpcDiscoveryLookupClient extends BaseClient {
-  async list (service, { limit = 3 } = {}) {
+  async list(service, { limit = 3 } = {}) {
     if (!this.opened) await this.ready()
     await this.ensureDbLoaded()
 
