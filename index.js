@@ -22,7 +22,7 @@ class Autodiscovery extends ReadyResource {
   static OPS = ops
   static VALUE_ENCODING = opEncoding
 
-  constructor (store, swarm, rpcAllowedPublicKey, router, { bootstrap = null } = {}) {
+  constructor(store, swarm, rpcAllowedPublicKey, router, { bootstrap = null } = {}) {
     super()
 
     this.swarm = swarm
@@ -49,23 +49,23 @@ class Autodiscovery extends ReadyResource {
     )
   }
 
-  get view () {
+  get view() {
     return this.base.view
   }
 
-  get serverPublicKey () {
+  get serverPublicKey() {
     return this.swarm.keyPair.publicKey
   }
 
-  get dbKey () {
+  get dbKey() {
     return this.view.db.core.key
   }
 
-  get dbDiscoveryKey () {
+  get dbDiscoveryKey() {
     return this.view.db.core.discoveryKey
   }
 
-  async _open () {
+  async _open() {
     await this.base.ready()
     await this.view.ready()
     await this.router.ready()
@@ -94,23 +94,23 @@ class Autodiscovery extends ReadyResource {
     await this.swarm.listen()
   }
 
-  async _close () {
+  async _close() {
     await this.view.close()
     await this.base.close()
   }
 
-  _openAutobase (store) {
+  _openAutobase(store) {
     const core = store.get('view')
     const db = new RpcDiscoveryDb(core, { extension: false })
     return db
   }
 
-  async _closeAutobase (view) {
+  async _closeAutobase(view) {
     await view.close()
   }
 
   // Must not be called directly, only from the autobase apply
-  async _apply (nodes, view, base) {
+  async _apply(nodes, view, base) {
     if (!view.opened) await view.ready()
 
     for (const node of nodes) {
@@ -131,25 +131,25 @@ class Autodiscovery extends ReadyResource {
     }
   }
 
-  async _onPutService (req) {
+  async _onPutService(req) {
     await this.addService(req.publicKey, req.service)
   }
 
-  async _onDeleteService (req) {
+  async _onDeleteService(req) {
     await this.deleteService(req.publicKey)
   }
 
-  async addService (serviceKey, serviceName) {
+  async addService(serviceKey, serviceName) {
     serviceKey = IdEnc.decode(serviceKey)
     await this.base.append({ op: ops.ADD_SERVICE, serviceKey, serviceName })
   }
 
-  async deleteService (serviceKey) {
+  async deleteService(serviceKey) {
     serviceKey = IdEnc.decode(serviceKey)
     await this.base.append({ op: ops.DELETE_SERVICE, serviceKey })
   }
 
-  getKeys (service, { limit = 100 } = {}) {
+  getKeys(service, { limit = 100 } = {}) {
     return this.view.list(service, { limit })
   }
 }

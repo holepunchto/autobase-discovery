@@ -14,16 +14,32 @@ const defaultMiddleware = require('protomux-rpc-middleware')
 const { version: ownVersion } = require('./package.json')
 const Autodiscovery = require('.')
 
-const runCmd = command('run',
-  arg('<rpcAllowedPublicKey>', 'public key of peers that are allowed to send requests over RPC (in hex or z32 format)'),
+const runCmd = command(
+  'run',
+  arg(
+    '<rpcAllowedPublicKey>',
+    'public key of peers that are allowed to send requests over RPC (in hex or z32 format)'
+  ),
   flag('--storage|-s [path]', 'storage path, defaults to ./autodiscovery'),
   flag('--scraper-public-key [scraper-public-key]', 'Public key of a dht-prometheus scraper'),
   flag('--scraper-secret [scraper-secret]', 'Secret of the dht-prometheus scraper'),
   flag('--scraper-alias [scraper-alias]', '(optional) Alias with which to register to the scraper'),
-  flag('--bootstrap [bootstrap]', '(for tests) Bootstrap DHT node to use, in format <host>:<port> (e.g. 127.0.0.1:10000)'),
-  flag('--rate-limit-capacity [rate-limit-capacity]', '(optional) Rate limit bucket capacity for RPC requests'),
-  flag('--rate-limit-interval-ms [rate-limit-interval-ms]', '(optional) Rate limit refill interval in milliseconds'),
-  flag('--concurrent-limit-capacity [concurrent-limit-capacity]', '(optional) Concurrent limit capacity for RPC requests'),
+  flag(
+    '--bootstrap [bootstrap]',
+    '(for tests) Bootstrap DHT node to use, in format <host>:<port> (e.g. 127.0.0.1:10000)'
+  ),
+  flag(
+    '--rate-limit-capacity [rate-limit-capacity]',
+    '(optional) Rate limit bucket capacity for RPC requests'
+  ),
+  flag(
+    '--rate-limit-interval-ms [rate-limit-interval-ms]',
+    '(optional) Rate limit refill interval in milliseconds'
+  ),
+  flag(
+    '--concurrent-limit-capacity [concurrent-limit-capacity]',
+    '(optional) Concurrent limit capacity for RPC requests'
+  ),
 
   async function ({ flags, args }) {
     const logger = pino({ name: 'autobase-discovery' })
@@ -37,16 +53,21 @@ const runCmd = command('run',
     }
 
     const rateLimitCapacity = flags.rateLimitCapacity ? parseInt(flags.rateLimitCapacity) : 10
-    const rateLimitIntervalMs = flags.rateLimitIntervalMs ? parseInt(flags.rateLimitIntervalMs) : 100
-    const concurrentLimitCapacity = flags.concurrentLimitCapacity ? parseInt(flags.concurrentLimitCapacity) : 16
+    const rateLimitIntervalMs = flags.rateLimitIntervalMs
+      ? parseInt(flags.rateLimitIntervalMs)
+      : 100
+    const concurrentLimitCapacity = flags.concurrentLimitCapacity
+      ? parseInt(flags.concurrentLimitCapacity)
+      : 16
 
     logger.info(`Using storage: ${storage}`)
     const store = new Corestore(storage)
     await store.ready()
 
-    const swarm = new Hyperswarm(
-      { keyPair: await store.createKeyPair('public-key'), bootstrap }
-    )
+    const swarm = new Hyperswarm({
+      keyPair: await store.createKeyPair('public-key'),
+      bootstrap
+    })
     swarm.on('connection', (conn, peerInfo) => {
       const key = IdEnc.normalize(peerInfo.publicKey)
       logger.info(`Opened connection to ${key}`)
@@ -62,7 +83,8 @@ const runCmd = command('run',
       const prometheusServiceName = 'autodiscovery'
 
       let prometheusAlias = flags.scraperAlias
-      if (prometheusAlias && prometheusAlias.length > 99) throw new Error('The Prometheus alias must have length less than 100')
+      if (prometheusAlias && prometheusAlias.length > 99)
+        throw new Error('The Prometheus alias must have length less than 100')
       if (!prometheusAlias) {
         prometheusAlias = `autodiscovery-${IdEnc.normalize(swarm.keyPair.publicKey)}`.slice(0, 99)
       }
@@ -81,13 +103,18 @@ const runCmd = command('run',
     }
 
     const router = new ProtomuxRPCRouter()
-    router.use(defaultMiddleware({
-      logger: {
-        instance: logger
-      },
-      rateLimit: { capacity: rateLimitCapacity, intervalMs: rateLimitIntervalMs },
-      concurrentLimit: { capacity: concurrentLimitCapacity }
-    }))
+    router.use(
+      defaultMiddleware({
+        logger: {
+          instance: logger
+        },
+        rateLimit: {
+          capacity: rateLimitCapacity,
+          intervalMs: rateLimitIntervalMs
+        },
+        concurrentLimit: { capacity: concurrentLimitCapacity }
+      })
+    )
     if (instrumentation) {
       router.registerMetrics(instrumentation.promClient)
     }

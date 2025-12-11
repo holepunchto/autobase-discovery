@@ -8,7 +8,7 @@ const HyperDHT = require('hyperdht')
 const PutServiceRequest = resolveStruct('@autodiscovery/put-service-request')
 
 class RpcDiscoveryRegisterClient extends ReadyResource {
-  constructor (serverKey, dht, accessSeed) {
+  constructor(serverKey, dht, accessSeed) {
     super()
 
     this.keyPair = HyperDHT.keyPair(IdEnc.decode(accessSeed))
@@ -16,13 +16,13 @@ class RpcDiscoveryRegisterClient extends ReadyResource {
     this.serverKey = IdEnc.decode(serverKey)
   }
 
-  async _open () {}
+  async _open() {}
 
-  async _close () {
+  async _close() {
     await this.rpcClient.close()
   }
 
-  async putService (publicKey, service) {
+  async putService(publicKey, service) {
     if (!this.opened) await this.ready()
 
     publicKey = IdEnc.decode(publicKey)

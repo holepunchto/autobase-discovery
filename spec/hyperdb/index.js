@@ -5,11 +5,9 @@ const { IndexEncoder, c } = require('hyperdb/runtime')
 const { version, getEncoding, setVersion } = require('./messages.js')
 
 // '@autodiscovery/service-entry' collection key
-const collection0_key = new IndexEncoder([
-  IndexEncoder.BUFFER
-], { prefix: 0 })
+const collection0_key = new IndexEncoder([IndexEncoder.BUFFER], { prefix: 0 })
 
-function collection0_indexify (record) {
+function collection0_indexify(record) {
   const a = record.publicKey
   return a === undefined ? [] : [a]
 }
@@ -18,7 +16,7 @@ function collection0_indexify (record) {
 const collection0_enc = getEncoding('@autodiscovery/service-entry/hyperdb#0')
 
 // '@autodiscovery/service-entry' reconstruction function
-function collection0_reconstruct (version, keyBuf, valueBuf) {
+function collection0_reconstruct(version, keyBuf, valueBuf) {
   const key = collection0_key.decode(keyBuf)
   setVersion(version)
   const record = c.decode(collection0_enc, valueBuf)
@@ -26,7 +24,7 @@ function collection0_reconstruct (version, keyBuf, valueBuf) {
   return record
 }
 // '@autodiscovery/service-entry' key reconstruction function
-function collection0_reconstruct_key (keyBuf) {
+function collection0_reconstruct_key(keyBuf) {
   const key = collection0_key.decode(keyBuf)
   return {
     publicKey: key[0]
@@ -37,11 +35,11 @@ function collection0_reconstruct_key (keyBuf) {
 const collection0 = {
   name: '@autodiscovery/service-entry',
   id: 0,
-  encodeKey (record) {
+  encodeKey(record) {
     const key = [record.publicKey]
     return collection0_key.encode(key)
   },
-  encodeKeyRange ({ gt, lt, gte, lte } = {}) {
+  encodeKeyRange({ gt, lt, gte, lte } = {}) {
     return collection0_key.encodeRange({
       gt: gt ? collection0_indexify(gt) : null,
       lt: lt ? collection0_indexify(lt) : null,
@@ -49,7 +47,7 @@ const collection0 = {
       lte: lte ? collection0_indexify(lte) : null
     })
   },
-  encodeValue (version, record) {
+  encodeValue(version, record) {
     setVersion(version)
     return c.encode(collection0_enc, record)
   },
@@ -60,12 +58,9 @@ const collection0 = {
 }
 
 // '@autodiscovery/services' collection key
-const index1_key = new IndexEncoder([
-  IndexEncoder.STRING,
-  IndexEncoder.BUFFER
-], { prefix: 1 })
+const index1_key = new IndexEncoder([IndexEncoder.STRING, IndexEncoder.BUFFER], { prefix: 1 })
 
-function index1_indexify (record) {
+function index1_indexify(record) {
   const arr = []
 
   const a0 = record.service
@@ -83,10 +78,10 @@ function index1_indexify (record) {
 const index1 = {
   name: '@autodiscovery/services',
   id: 1,
-  encodeKey (record) {
+  encodeKey(record) {
     return index1_key.encode(index1_indexify(record))
   },
-  encodeKeyRange ({ gt, lt, gte, lte } = {}) {
+  encodeKeyRange({ gt, lt, gte, lte } = {}) {
     return index1_key.encodeRange({
       gt: gt ? index1_indexify(gt) : null,
       lt: lt ? index1_indexify(lt) : null,
@@ -95,7 +90,7 @@ const index1 = {
     })
   },
   encodeValue: (doc) => index1.collection.encodeKey(doc),
-  encodeIndexKeys (record, context) {
+  encodeIndexKeys(record, context) {
     return [index1_key.encode([record.service, record.publicKey])]
   },
   reconstruct: (keyBuf, valueBuf) => valueBuf,
@@ -104,26 +99,32 @@ const index1 = {
 }
 collection0.indexes.push(index1)
 
-const collections = [
-  collection0
-]
+const collections = [collection0]
 
-const indexes = [
-  index1
-]
+const indexes = [index1]
 
-module.exports = { version, collections, indexes, resolveCollection, resolveIndex }
+module.exports = {
+  version,
+  collections,
+  indexes,
+  resolveCollection,
+  resolveIndex
+}
 
-function resolveCollection (name) {
+function resolveCollection(name) {
   switch (name) {
-    case '@autodiscovery/service-entry': return collection0
-    default: return null
+    case '@autodiscovery/service-entry':
+      return collection0
+    default:
+      return null
   }
 }
 
-function resolveIndex (name) {
+function resolveIndex(name) {
   switch (name) {
-    case '@autodiscovery/services': return index1
-    default: return null
+    case '@autodiscovery/services':
+      return index1
+    default:
+      return null
   }
 }
