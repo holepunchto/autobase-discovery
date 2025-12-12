@@ -4,6 +4,8 @@ Automatic service discovery with self-registering services, using [autobase](htt
 
 Clients discover the RPC services by querying the autodiscovery's [hyperdb](https://github.com/holepunchto/hyperdb), which is an autobase view.
 
+See [autobase-discovery-cli](https://github.com/holepunchto/autobase-discovery-cli) for running as a CLI.
+
 ## Install
 
 ```
@@ -32,26 +34,8 @@ HyperDHT.keyPair(Buffer.from(seed, 'hex')).publicKey.toString('hex')
 
 ### Server
 
-```
-autodiscovery run <rpc-allowed-public-key>
-```
-
-Where `rpc-allowed-public-key` is the public key corresponding to the clients' seed (see the 'Security' section above).
-
-The RPC server's public key and the database key will be printed.
-
-Logs are in pino's JSON format. Pipe them to `pino-pretty` for a human-readable format (`autodiscovery run | pino-pretty`)
-
-Note that the database key is updated every time a new indexer is processed. In particular, you should add at least one entry to the database to stabilise the database key for the initial indexer.
+See [autobase-discovery-cli](https://github.com/holepunchto/autobase-discovery-cli).
 
 ### Client
 
 See [example.js](example.js) for the programmatic way of self-registering a service instance.
-
-See [client/bin.js](client/bin.js) for the programmatic way of listing the available service instances.
-
-Alternatively, use the CLI:
-
-```
-autodiscovery-client list <autodiscovery database key> <service-name>
-```
