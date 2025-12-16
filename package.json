@@ -1,6 +1,6 @@
 {
   "name": "autobase-discovery",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Automatic service discovery with self-registering services, using autobase",
   "main": "index.js",
   "scripts": {
