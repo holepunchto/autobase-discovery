@@ -44,7 +44,7 @@
     "hyperswarm": "^4.10.0",
     "prettier": "^3.7.4",
     "prettier-config-holepunch": "^2.0.0",
-    "protomux-rpc-router": "^0.0.3"
+    "protomux-rpc-router": "^1.0.0"
   },
   "dependencies": {
     "autobase": "^7.0.44",
