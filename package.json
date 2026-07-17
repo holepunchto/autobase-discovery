@@ -49,7 +49,7 @@
   "dependencies": {
     "autobase": "^7.0.44",
     "bare-events": "^2.7.0",
-    "compact-encoding": "^2.16.0",
+    "compact-encoding": "^3.3.0",
     "db-lock": "^1.2.0",
     "hypercore-id-encoding": "^1.3.0",
     "hyperdb": "^5.0.0",
