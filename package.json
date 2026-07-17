@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "prettier --check .",
     "format": "prettier --write .",
-    "test": "npm run lint && brittle test/test.js"
+    "test": "npm run lint && brittle-node test/test.js",
+    "test:bare": "brittle-bare test/test.js"
   },
   "files": [
     "index.js",
@@ -39,7 +40,7 @@
   },
   "devDependencies": {
     "b4a": "^1.6.7",
-    "brittle": "^3.12.1",
+    "brittle": "^4.1.0",
     "corestore": "^7.0.19",
     "hyperswarm": "^4.10.0",
     "prettier": "^3.7.4",
@@ -49,10 +50,10 @@
   "dependencies": {
     "autobase": "^7.0.44",
     "bare-events": "^2.7.0",
-    "compact-encoding": "^2.16.0",
+    "compact-encoding": "^3.3.0",
     "db-lock": "^1.2.0",
     "hypercore-id-encoding": "^1.3.0",
-    "hyperdb": "^5.0.0",
+    "hyperdb": "^6.7.0",
     "hyperdht": "^6.20.1",
     "hyperschema": "^1.10.4",
     "protomux-rpc-client": "^2.0.2",
