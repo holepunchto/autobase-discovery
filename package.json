@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "prettier --check .",
     "format": "prettier --write .",
-    "test": "npm run lint && brittle test/test.js"
+    "test": "npm run lint && brittle-node test/test.js",
+    "test:bare": "brittle-bare test/test.js"
   },
   "files": [
     "index.js",
@@ -39,7 +40,7 @@
   },
   "devDependencies": {
     "b4a": "^1.6.7",
-    "brittle": "^3.12.1",
+    "brittle": "^4.1.0",
     "corestore": "^7.0.19",
     "hyperswarm": "^4.10.0",
     "prettier": "^3.7.4",

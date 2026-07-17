@@ -23,4 +23,6 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - run: npm install -g bare
       - run: npm test
+      - run: npm run test:bare
